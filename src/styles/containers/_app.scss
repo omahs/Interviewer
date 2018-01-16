@@ -3,7 +3,7 @@
   background: palette('primary');
   height: 100vh;
   perspective: 1500px;
-  transition: $animation-slow-duration $animation-default-easing;
+  transition: transform $animation-slow-duration $animation-default-easing;
   width: 100vw;
 
   &--session {
@@ -17,7 +17,7 @@
     box-sizing: border-box;
     height: 100vh;
     overflow: hidden;
-    transition: $animation-standard-duration $animation-default-easing;
+    transition: transform $animation-standard-duration $animation-default-easing;
     width: 100vw;
     display: flex;
     @include vcjc; // vertical center, justify center
