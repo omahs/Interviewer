@@ -10,6 +10,7 @@
     z-index: var(--z-modal);
     padding: 0 8vmin;
     transition: opacity var(--animation-duration-standard) var(--animation-easing);
+    opacity: 0;
   }
 
   &__header {
