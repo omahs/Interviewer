@@ -31,11 +31,7 @@ class LoadParamsRoute extends Component {
     }
 
     if (params && params.protocolId && params.protocolId !== this.props.protocolPath) {
-      if (params.protocolType === 'factory') {
-        this.props.loadFactoryProtocol(params.protocolId);
-      } else {
-        this.props.loadProtocol(params.protocolId);
-      }
+      this.props.loadProtocol(params.protocolId);
     }
   }
 
@@ -61,11 +57,7 @@ class LoadParamsRoute extends Component {
 
     if (nextParams && nextParams !== params && nextParams.protocolId &&
         nextParams.protocolId !== this.props.protocolPath) {
-      if (nextParams.protocolType === 'factory') {
-        this.props.loadFactoryProtocol(nextParams.protocolId);
-      } else {
-        this.props.loadProtocol(nextParams.protocolId);
-      }
+      this.props.loadProtocol(nextParams.protocolId);
     }
   }
 
@@ -112,7 +104,6 @@ LoadParamsRoute.propTypes = {
   computedMatch: PropTypes.object.isRequired,
   isProtocolLoaded: PropTypes.bool.isRequired,
   isSkipped: PropTypes.bool,
-  loadFactoryProtocol: PropTypes.func.isRequired,
   loadProtocol: PropTypes.func.isRequired,
   protocolPath: PropTypes.string,
   resetState: PropTypes.func.isRequired,
@@ -150,7 +141,6 @@ function mapStateToProps(state, ownProps) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadFactoryProtocol: bindActionCreators(protocolActions.loadFactoryProtocol, dispatch),
     loadProtocol: bindActionCreators(protocolActions.loadProtocol, dispatch),
     resetState: bindActionCreators(resetActions.resetAppState, dispatch),
     setSession: bindActionCreators(sessionActions.setSession, dispatch),

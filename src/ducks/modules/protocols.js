@@ -11,30 +11,9 @@ import { actionTypes as ProtocolActionTypes } from './protocol';
 
 const SET_PROTOCOL = ProtocolActionTypes.SET_PROTOCOL;
 
-const initialState = [
-  {
-    name: 'Teaching Protocol',
-    description: 'A built-in protocol that demonstrates some typical network capture techniques.',
-    path: 'teaching-protocol.netcanvas',
-    isFactoryProtocol: true,
-  },
-  {
-    name: 'Development Protocol',
-    description: 'A built-in protocol for developers to test Network Canvas functionality.',
-    path: 'development.netcanvas',
-    isFactoryProtocol: true,
-  },
-];
-
-export default function reducer(state = initialState, action = {}) {
+export default function reducer(state = [], action = {}) {
   switch (action.type) {
     case SET_PROTOCOL: {
-      // TODO: Protocol should be validated before import; this check shouldn't be needed
-      if (!action.protocol.name) { return state; }
-
-      // Do not allow updates to factory protocols
-      if (action.isFactoryProtocol) { return state; }
-
       const newProtocol = {
         name: action.protocol.name,
         description: action.protocol.description,

@@ -8,7 +8,6 @@ import {
   loadProtocol,
   importProtocol,
   downloadProtocol,
-  loadFactoryProtocol,
   preloadWorkers,
 } from '../../utils/protocol';
 
@@ -49,7 +48,6 @@ export const initialState = {
   version: '',
   required: '',
   stages: [],
-  type: 'factory',
   workerUrlMap: null,
 };
 
@@ -82,7 +80,6 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         isLoaded: false,
         isLoading: true,
-        type: action.protocolType,
       };
     case DOWNLOAD_PROTOCOL_FAILED:
     case IMPORT_PROTOCOL_FAILED:
@@ -115,15 +112,6 @@ function importProtocolAction(path) {
 function loadProtocolAction(path) {
   return {
     type: LOAD_PROTOCOL,
-    protocolType: 'download',
-    path,
-  };
-}
-
-function loadFactoryProtocolAction(path) {
-  return {
-    type: LOAD_PROTOCOL,
-    protocolType: 'factory',
     path,
   };
 }
@@ -149,12 +137,11 @@ function downloadProtocolFailed(error) {
   };
 }
 
-function setProtocol(path, protocol, isFactoryProtocol) {
+function setProtocol(path, protocol) {
   return {
     type: SET_PROTOCOL,
     path,
     protocol,
-    isFactoryProtocol,
   };
 }
 
@@ -190,21 +177,11 @@ const importProtocolEpic = action$ =>
 
 const loadProtocolEpic = action$ =>
   action$
-    .filter(action => action.type === LOAD_PROTOCOL && action.protocolType !== 'factory')
+    .filter(action => action.type === LOAD_PROTOCOL)
     .switchMap(action => // Favour subsequent load actions over earlier ones
       Observable
         .fromPromise(loadProtocol(action.path)) // Get protocol
         .map(response => setProtocol(action.path, response, false)) // Parse and save
-        .catch(error => Observable.of(loadProtocolFailed(error))), //  ...or throw an error
-    );
-
-const loadFactoryProtocolEpic = action$ =>
-  action$
-    .filter(action => action.type === LOAD_PROTOCOL && action.protocolType === 'factory')
-    .switchMap(action => // Favour subsequent load actions over earlier ones
-      Observable
-        .fromPromise(loadFactoryProtocol(action.path)) // Get protocol
-        .map(response => setProtocol(action.path, response, true)) // Parse and save
         .catch(error => Observable.of(loadProtocolFailed(error))), //  ...or throw an error
     );
 
@@ -213,7 +190,7 @@ const loadProtocolWorkerEpic = action$ =>
     .ofType(LOAD_PROTOCOL)
     .switchMap(action => // Favour subsequent load actions over earlier ones
       Observable
-        .fromPromise(preloadWorkers(action.path, action.protocolType === 'factory'))
+        .fromPromise(preloadWorkers(action.path))
         .mergeMap(urls => urls)
         .reduce((urlMap, workerUrl, i) => {
           if (workerUrl) {
@@ -230,7 +207,6 @@ const actionCreators = {
   importProtocol: importProtocolAction,
   downloadProtocol: downloadProtocolAction,
   setProtocol,
-  loadFactoryProtocol: loadFactoryProtocolAction,
   loadProtocolFailed,
   importProtocolFailed,
   downloadProtocolFailed,
@@ -250,7 +226,6 @@ const epics = combineEpics(
   downloadProtocolEpic,
   importProtocolEpic,
   loadProtocolEpic,
-  loadFactoryProtocolEpic,
   loadProtocolWorkerEpic,
 );
 

@@ -7,7 +7,7 @@ import { appPath } from '../filesystem';
 
 const isValidProtocolName = protocolName => (isString(protocolName) && protocolName.length > 0);
 
-const factoryProtocolPath = (environment) => {
+const developmentProtocolPath = (environment) => {
   if (environment === environments.ELECTRON) {
     const path = require('path');
 
@@ -25,7 +25,7 @@ const factoryProtocolPath = (environment) => {
     };
   }
 
-  throw new Error('factoryProtocolPath() is not supported on this platform');
+  throw new Error('developmentProtocolPath() is not supported on this platform');
 };
 
-export default inEnvironment(factoryProtocolPath);
+export default inEnvironment(developmentProtocolPath);

@@ -8,11 +8,10 @@ import ProtocolList, { UnconnectedProtocolList } from '../ProtocolList';
 
 const mockProps = {
   addSession: jest.fn(),
-  loadFactoryProtocol: jest.fn(),
   loadProtocol: jest.fn(),
 };
 
-const mockProtocols = [{ name: 'Sample', path: 'sample.netcanvas', isFactoryProtocol: true }];
+const mockProtocols = [{ name: 'Sample', path: 'sample.netcanvas' }];
 
 const mockStore = () =>
   createStore(() => ({
@@ -31,19 +30,12 @@ describe('<ProtocolList />', () => {
 
     beforeEach(() => {
       wrapper = shallow(<UnconnectedProtocolList {...mockProps} protocols={mockProtocols} />);
-      mockProps.loadFactoryProtocol.mockClear();
       mockProps.loadProtocol.mockClear();
     });
 
-    it('loads a factory protocol', () => {
-      wrapper.instance().onClickNewProtocol(mockProtocols[0]);
-      expect(mockProps.loadFactoryProtocol).toHaveBeenCalled();
-    });
-
     it('loads a remote protocol', () => {
-      const protocol = { ...mockProtocols[0], isFactoryProtocol: undefined };
+      const protocol = { ...mockProtocols[0] };
       wrapper.instance().onClickNewProtocol(protocol);
-      expect(mockProps.loadFactoryProtocol).not.toHaveBeenCalled();
       expect(mockProps.loadProtocol).toHaveBeenCalledWith(protocol.path);
     });
   });

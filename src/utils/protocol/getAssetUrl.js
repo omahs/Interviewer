@@ -9,7 +9,6 @@ const assetUrl = (environment) => {
     return (
       protocolName = isRequired('protocolName'),
       assetPath = isRequired('assetPath'),
-      /* protocolType, */
     ) =>
       Promise.resolve(`asset://${protocolName}/assets/${assetPath}`);
   }
@@ -18,12 +17,7 @@ const assetUrl = (environment) => {
     return (
       protocolName = isRequired('protocolName'),
       assetPath = isRequired('assetPath'),
-      protocolType,
     ) => {
-      if (protocolType === 'factory') {
-        return Promise.resolve(`protocols/${protocolName}/assets/${assetPath}`);
-      }
-
       const sourceFilename = protocolPath(protocolName, `assets/${assetPath}`);
 
       return Promise.resolve(sourceFilename);

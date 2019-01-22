@@ -21,7 +21,7 @@ export const protocolForms = createDeepEqualSelector(
 );
 
 export const getRemoteProtocolId = createDeepEqualSelector(
-  state => state.protocol && state.protocol.type !== 'factory' && state.protocol.name,
+  state => state.protocol && state.protocol.name,
   remoteName => nameDigest(remoteName) || null,
 );
 

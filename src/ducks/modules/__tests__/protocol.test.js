@@ -82,21 +82,6 @@ describe('protocol module', () => {
       });
     });
 
-    it('loadFactoryProtocol()', () => {
-      expect(
-        reducer(
-          initialState,
-          actionCreators.loadFactoryProtocol(
-            '/tmp/foo/mockPath.protocol',
-          ),
-        ),
-      ).toEqual({
-        ...initialState,
-        isLoaded: false,
-        isLoading: true,
-      });
-    });
-
     it('should clear protocol state when session ends', () => {
       const newState = reducer(
         initialState,
@@ -148,21 +133,6 @@ describe('protocol module', () => {
         '/app/data/protocol/path',
         { fake: { protocol: { json: true } } },
         false,
-      );
-      return epics(action$).toArray().toPromise().then((result) => {
-        expect(result).toContainEqual(expectedAction);
-      });
-    });
-
-    it('loadFactoryProtocolEpic', () => {
-      const action$ = ActionsObservable.of(
-        actionCreators.loadFactoryProtocol('factory_protocol_name'),
-      );
-
-      const expectedAction = actionCreators.setProtocol(
-        'factory_protocol_name',
-        { fake: { factory: { protocol: { json: true } } } },
-        true,
       );
       return epics(action$).toArray().toPromise().then((result) => {
         expect(result).toContainEqual(expectedAction);

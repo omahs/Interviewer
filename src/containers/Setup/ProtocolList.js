@@ -13,16 +13,8 @@ import { actionCreators as sessionsActions } from '../../ducks/modules/sessions'
   */
 class ProtocolList extends Component {
   onClickNewProtocol = (protocol) => {
-    if (!(protocol.isFactoryProtocol || protocol.path)) {
-      return;
-    }
-
     this.props.addSession();
-    if (protocol.isFactoryProtocol) {
-      this.props.loadFactoryProtocol(protocol.path);
-    } else if (protocol.path) {
-      this.props.loadProtocol(protocol.path);
-    }
+    this.props.loadProtocol(protocol.path);
   }
 
   render() {
@@ -46,24 +38,32 @@ class ProtocolList extends Component {
     };
 
     return (
-      <Swiper {...params}>
-        { protocols.map(protocol => (
-          <div key={protocol.path}>
-            <ProtocolCard
-              size="large"
-              protocol={protocol}
-              selectProtocol={() => this.onClickNewProtocol(protocol)}
-            />
+      <div>
+        { protocols.length > 0 ?
+          <Swiper {...params}>
+            { protocols.map(protocol => (
+              <div key={protocol.path}>
+                <ProtocolCard
+                  size="large"
+                  protocol={protocol}
+                  selectProtocol={() => this.onClickNewProtocol(protocol)}
+                />
+              </div>
+            )) }
+          </Swiper>
+          :
+          <div>
+            <h1>No installed protocols</h1>
+            <p>You have no interview protocols installed on this device.</p>
           </div>
-        )) }
-      </Swiper>
+        }
+      </div>
     );
   }
 }
 
 ProtocolList.propTypes = {
   addSession: PropTypes.func.isRequired,
-  loadFactoryProtocol: PropTypes.func.isRequired,
   loadProtocol: PropTypes.func.isRequired,
   protocols: PropTypes.array.isRequired,
 };
@@ -81,7 +81,6 @@ function mapDispatchToProps(dispatch) {
   return {
     addSession: bindActionCreators(sessionsActions.addSession, dispatch),
     loadProtocol: bindActionCreators(protocolActions.loadProtocol, dispatch),
-    loadFactoryProtocol: bindActionCreators(protocolActions.loadFactoryProtocol, dispatch),
   };
 }
 

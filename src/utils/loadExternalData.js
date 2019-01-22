@@ -6,7 +6,6 @@ import inEnvironment from './Environment';
 import { readFile } from './filesystem';
 import { nodePrimaryKeyProperty } from '../ducks/modules/network';
 import getAssetUrl from './protocol/getAssetUrl';
-import getFactoryProtocolPath from './protocol/factoryProtocolPath';
 
 const withKeys = data =>
   data.map((node) => {
@@ -31,25 +30,12 @@ const fetchNetwork = inEnvironment(
     }
 
     if (environment === environments.CORDOVA) {
-      return (url, { fileName, protocolType, protocolName }) => {
-        if (protocolType === 'factory') {
-          return readFile(
-            getFactoryProtocolPath(protocolName, `assets/${fileName}`)
-          )
-            .then(data => JSON.parse(data))
-            .then((json) => {
-              const nodes = get(json, 'nodes', []);
-              return ({ nodes: withKeys(nodes) });
-            });
-        }
-
-        return readFile(url)
-          .then(response => JSON.parse(response))
-          .then((json) => {
-            const nodes = get(json, 'nodes', []);
-            return ({ nodes: withKeys(nodes) });
-          });
-      };
+      return url => readFile(url)
+        .then(response => JSON.parse(response))
+        .then((json) => {
+          const nodes = get(json, 'nodes', []);
+          return ({ nodes: withKeys(nodes) });
+        });
     }
 
     return Promise.reject('Environment not supported');
@@ -64,8 +50,8 @@ const fetchNetwork = inEnvironment(
  * @returns {object} Network object in format { nodes, edges }
  *
  */
-const loadExternalData = (protocolName, fileName, protocolType) =>
-  getAssetUrl(protocolName, fileName, protocolType)
-    .then(url => fetchNetwork(url, { fileName, protocolType, protocolName }));
+const loadExternalData = (protocolName, fileName) =>
+  getAssetUrl(protocolName, fileName)
+    .then(url => fetchNetwork(url, { fileName, protocolName }));
 
 export default loadExternalData;
