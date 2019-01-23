@@ -1,6 +1,5 @@
 /* eslint-disable global-require */
 /* global FileTransfer */
-import uuid from 'uuid/v4';
 import environments from '../environments';
 import inEnvironment from '../Environment';
 import { writeFile } from '../filesystem';
@@ -15,8 +14,6 @@ const getURL = uri =>
       reject(error);
     }
   });
-
-const getProtocolName = () => uuid(); // generate a filename
 
 const urlError = friendlyErrorMessage("The location you gave us doesn't seem to be valid. Check the location, and try again.");
 const networkError = friendlyErrorMessage("We weren't able to fetch your protocol at this time. Your device may not have an active network connection - connect to a network, and try again.");
@@ -37,10 +34,10 @@ const downloadProtocol = inEnvironment((environment) => {
     const path = require('path');
     const electron = require('electron');
     const tempPath = (electron.app || electron.remote.app).getPath('temp');
-    const destination = path.join(tempPath, getProtocolName());
 
-    return (uri, pairedServer) => {
+    return (uri, pairedServer, uid) => {
       let promisedResponse;
+      const destination = path.join(tempPath, uid);
       if (pairedServer) {
         promisedResponse = new ApiClient(pairedServer).downloadProtocol(uri);
       } else {
@@ -53,13 +50,13 @@ const downloadProtocol = inEnvironment((environment) => {
         .catch(networkError)
         .then(data => writeFile(destination, data))
         .catch(fileError)
-        .then(() => destination);
+        .then(() => ({ destination, uid }));
     };
   }
 
   if (environment === environments.CORDOVA) {
-    const destination = `cdvfile://localhost/temporary/${getProtocolName()}`;
-    return (uri, pairedServer) => {
+    return (uri, pairedServer, uid) => {
+      const destination = `cdvfile://localhost/temporary/${uid}`;
       let promisedResponse;
       if (pairedServer) {
         promisedResponse = new ApiClient(pairedServer)
@@ -75,7 +72,7 @@ const downloadProtocol = inEnvironment((environment) => {
             fileTransfer.download(
               href,
               destination,
-              () => resolve(destination),
+              () => resolve({ destination, uid }),
               error => reject(error),
             );
           }));

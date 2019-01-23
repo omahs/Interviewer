@@ -24,7 +24,6 @@ const pathInfo = (sessionPath) => {
   if (matchedPath) {
     info.sessionId = matchedPath.params.sessionId;
     info.protocol = matchedPath.params.protocolId;
-    info.protocolType = matchedPath.params.protocolType;
     info.stageIndex = matchedPath.params.stageIndex;
   }
   return info;

@@ -17,13 +17,12 @@ import { getCurrentSession } from '../selectors/session';
 const mapStateToProps = (state) => {
   const session = getCurrentSession(state);
   const assetFiles = mapValues(
-    state.protocol.assetManifest,
+    state.activeProtocol.assetManifest,
     asset => asset.source,
   );
 
   return {
     protocolName: session.protocolPath,
-    protocolType: state.protocol.type,
     assetFiles,
   };
 };
@@ -59,7 +58,6 @@ const withExternalData = (sourceProperty, dataProperty) =>
       loadExternalData: ({
         setExternalData,
         protocolName,
-        protocolType,
         assetFiles,
       }) =>
         (sourceId) => {
@@ -69,7 +67,7 @@ const withExternalData = (sourceProperty, dataProperty) =>
 
           const sourceFile = assetFiles[sourceId];
 
-          loadExternalData(protocolName, sourceFile, protocolType)
+          loadExternalData(protocolName, sourceFile)
             .then((externalData) => {
               setExternalData(externalData);
             });

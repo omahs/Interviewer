@@ -7,7 +7,6 @@ import { Redirect } from 'react-router-dom';
 import ApiClient from '../../utils/ApiClient';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { actionCreators as protocolActions } from '../../ducks/modules/protocol';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
 import { actionCreators as serverActions } from '../../ducks/modules/pairedServer';
 import { ServerProtocolList, ServerSetup, ServerUnavailable } from '../../components/Setup';
 
@@ -44,10 +43,9 @@ class ServerProtocols extends Component {
   }
 
   handleSelectProtocol = (protocol) => {
-    const { addSession, downloadProtocol } = this.props;
-    addSession();
+    const { installProtocol } = this.props;
     this.apiClient.addTrustedCert()
-      .then(() => downloadProtocol(protocol.downloadPath, true));
+      .then(() => installProtocol(protocol.downloadPath, true));
   }
 
   handleUnpairRequest = () => {
@@ -71,7 +69,7 @@ class ServerProtocols extends Component {
     const { isProtocolLoaded, server } = this.props;
 
     if (isProtocolLoaded) {
-      const pathname = `/session/${this.props.sessionId}/${this.props.protocolType}/${this.props.protocolPath}/0`;
+      const pathname = `/session/${this.props.sessionId}/${this.props.protocolPath}/0`;
       return (<Redirect to={{ pathname: `${pathname}` }} />);
     }
 
@@ -107,13 +105,11 @@ ServerProtocols.defaultProps = {
 };
 
 ServerProtocols.propTypes = {
-  addSession: PropTypes.func.isRequired,
-  downloadProtocol: PropTypes.func.isRequired,
+  installProtocol: PropTypes.func.isRequired,
   isProtocolLoaded: PropTypes.bool.isRequired,
   openDialog: PropTypes.func.isRequired,
   pairedServer: PropTypes.object.isRequired,
   protocolPath: PropTypes.string,
-  protocolType: PropTypes.string.isRequired,
   server: PropTypes.shape({
     pairingServiceUrl: PropTypes.string.isRequired,
   }).isRequired,
@@ -123,9 +119,8 @@ ServerProtocols.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    isProtocolLoaded: state.protocol.isLoaded,
-    protocolPath: state.protocol.path,
-    protocolType: state.protocol.type,
+    isProtocolLoaded: state.activeProtocol.isLoaded,
+    protocolPath: state.activeProtocol.path,
     sessionId: state.session,
     pairedServer: state.pairedServer,
   };
@@ -133,8 +128,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    addSession: bindActionCreators(sessionsActions.addSession, dispatch),
-    downloadProtocol: bindActionCreators(protocolActions.downloadProtocol, dispatch),
+    installProtocol: bindActionCreators(protocolActions.installProtocol, dispatch),
     openDialog: bindActionCreators(dialogActions.openDialog, dispatch),
     unpairServer: bindActionCreators(serverActions.unpairServer, dispatch),
   };

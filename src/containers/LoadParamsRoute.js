@@ -21,15 +21,14 @@ class LoadParamsRoute extends Component {
 
     if (params && params.sessionId) {
       if (this.props.sessionId !== params.sessionId) {
-        const protocolType = (params.protocolId && params.protocolId !== this.props.protocolPath) ?
-          params.protocolType : '';
-        this.props.setSession(params.sessionId, protocolType);
+        this.props.setSession(params.sessionId);
       }
       if (url !== this.props.sessionUrl) {
         this.props.updateSession(params.sessionId, url);
       }
     }
 
+    console.log(params, this.props);
     if (params && params.protocolId && params.protocolId !== this.props.protocolPath) {
       this.props.loadProtocol(params.protocolId);
     }
@@ -46,10 +45,7 @@ class LoadParamsRoute extends Component {
 
     if (nextParams && nextParams.sessionId) {
       if (this.props.sessionId !== nextParams.sessionId) {
-        const protocolType =
-          (nextParams.protocolId && nextParams.protocolId !== this.props.protocolPath) ?
-            nextParams.protocolType : '';
-        this.props.setSession(nextParams.sessionId, protocolType);
+        this.props.setSession(nextParams.sessionId);
       } else if (nextUrl && nextUrl !== this.props.sessionUrl) {
         this.props.updateSession(nextParams.sessionId, nextUrl);
       }
@@ -74,7 +70,6 @@ class LoadParamsRoute extends Component {
 
     const {
       protocolId,
-      protocolType,
       sessionId,
     } = this.props.computedMatch.params;
 
@@ -85,7 +80,7 @@ class LoadParamsRoute extends Component {
       isSkipped ?
         (<Redirect to={
           {
-            pathname: `/session/${sessionId}/${protocolType}/${protocolId}/${skipToIndex}`,
+            pathname: `/session/${sessionId}/${protocolId}/${skipToIndex}`,
             search: backParam,
           }}
         />) :
@@ -130,9 +125,9 @@ function mapStateToProps(state, ownProps) {
 
   return {
     backParam: ownProps.location.search,
-    isProtocolLoaded: state.protocol.isLoaded,
+    isProtocolLoaded: state.activeProtocol.isLoaded,
     isSkipped: isStageSkipped(ownProps.computedMatch.params.stageIndex)(state),
-    protocolPath: state.protocol.path,
+    protocolPath: state.activeProtocol.path,
     sessionId: state.session,
     sessionUrl: state.sessions[state.session] && state.sessions[state.session].path,
     skipToIndex: getNextIndex(nextIndex)(state),

@@ -124,14 +124,15 @@ const importZip = inEnvironment((environment) => {
   return () => Promise.reject(new Error('loadZip() not available on platform'));
 });
 
-const importProtocol = inEnvironment((environment) => {
+const extractProtocol = inEnvironment((environment) => {
   if (environment === environments.ELECTRON) {
     const path = require('path');
 
     return (protocolFile = isRequired('protocolFile')) => {
       const protocolName = path.basename(protocolFile);
       const destination = protocolPath(protocolName);
-
+      const returnVal = importZip(protocolFile, protocolName, destination);
+      console.log(returnVal);
       return importZip(protocolFile, protocolName, destination);
     };
   }
@@ -145,10 +146,10 @@ const importProtocol = inEnvironment((environment) => {
     };
   }
 
-  return () => Promise.reject(new Error('importProtocol() not available on platform'));
+  return () => Promise.reject(new Error('extractProtocol() not available on platform'));
 });
 
-export default importProtocol;
+export default extractProtocol;
 
 export {
   checkZipPaths,

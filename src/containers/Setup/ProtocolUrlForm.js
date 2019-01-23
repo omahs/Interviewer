@@ -6,8 +6,7 @@ import { push } from 'react-router-redux';
 
 import Form from '../Form';
 import { Button, Icon } from '../../ui/components';
-import { actionCreators as protocolActions } from '../../ducks/modules/protocol';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as protocolActions } from '../../ducks/modules/protocols';
 
 const formConfig = {
   formName: 'setup',
@@ -29,9 +28,9 @@ const initialValues = {
 class ProtocolUrlForm extends Component {
   onClickImportRemoteProtocol = (fields) => {
     if (fields) {
-      this.props.addSession();
-      this.props.downloadProtocol(fields.protocol_url);
-      this.props.handleProtocolUpdate();
+      this.props.installProtocol(fields.protocol_url);
+      // return to start
+      // this.props.handleProtocolUpdate();
     }
   }
 
@@ -61,16 +60,14 @@ class ProtocolUrlForm extends Component {
 }
 
 ProtocolUrlForm.propTypes = {
-  addSession: PropTypes.func.isRequired,
-  downloadProtocol: PropTypes.func.isRequired,
+  installProtocol: PropTypes.func.isRequired,
   handleProtocolUpdate: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    addSession: bindActionCreators(sessionsActions.addSession, dispatch),
-    downloadProtocol: bindActionCreators(protocolActions.downloadProtocol, dispatch),
+    installProtocol: bindActionCreators(protocolActions.installProtocol, dispatch),
     handleProtocolUpdate: () => {
       dispatch(push('/'));
     },

@@ -32,7 +32,7 @@ class Setup extends Component {
   isShowSessions = () => this.state.showOptions === 'session';
 
   render() {
-    if (this.props.isProtocolLoaded) {
+    if (this.props.isSessionActive) {
       const stageIndex = this.props.stageIndex ? this.props.stageIndex : 0;
       const pathname = `/session/${this.props.sessionId}/${this.props.protocolPath}/${stageIndex}`;
       return (<Redirect to={{ pathname: `${pathname}` }} />);
@@ -83,10 +83,10 @@ class Setup extends Component {
 }
 
 Setup.propTypes = {
-  isProtocolLoaded: PropTypes.bool.isRequired,
+  isSessionActive: PropTypes.bool.isRequired,
   isPairedWithServer: PropTypes.bool.isRequired,
   protocolPath: PropTypes.string,
-  sessionId: PropTypes.string.isRequired,
+  sessionId: PropTypes.string,
   stageIndex: PropTypes.number,
 };
 
@@ -94,13 +94,14 @@ Setup.defaultProps = {
   protocolPath: '',
   isPairedWithServer: false,
   stageIndex: 0,
+  sessionId: null,
 };
 
 function mapStateToProps(state) {
   return {
-    isProtocolLoaded: state.protocol.isLoaded,
+    isSessionActive: state.activeProtocol.isLoaded && state.sessionId,
     isPairedWithServer: !!state.pairedServer,
-    protocolPath: state.protocol.path,
+    protocolPath: state.activeProtocol.path,
     sessionId: state.session,
   };
 }

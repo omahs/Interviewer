@@ -17,11 +17,11 @@ import { actionTypes as resetActionTypes } from './reset';
 const appReducer = combineReducers({
   router: routerReducer,
   form: formReducer,
-  session,
+  activeSession: session,
   sessions,
   deviceSettings,
   externalData,
-  protocol,
+  activeProtocol: protocol,
   protocols,
   dialogs,
   search,

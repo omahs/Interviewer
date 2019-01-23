@@ -2,7 +2,7 @@
 
 import reducer, { actionCreators, actionTypes } from '../session';
 
-const initialState = 'CREATE_NEW';
+const initialState = null;
 
 describe('session reducer', () => {
   it('should return the initial state', () => {

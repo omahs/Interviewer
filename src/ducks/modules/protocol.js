@@ -6,8 +6,6 @@ import { actionTypes as SessionActionTypes } from './session';
 import { supportedWorkers } from '../../utils/WorkerAgent';
 import {
   loadProtocol,
-  importProtocol,
-  downloadProtocol,
   preloadWorkers,
 } from '../../utils/protocol';
 
@@ -31,10 +29,6 @@ import {
 
 const END_SESSION = SessionActionTypes.END_SESSION;
 
-const DOWNLOAD_PROTOCOL = 'PROTOCOL/DOWNLOAD_PROTOCOL';
-const DOWNLOAD_PROTOCOL_FAILED = Symbol('PROTOCOL/DOWNLOAD_PROTOCOL_FAILED');
-const IMPORT_PROTOCOL = 'PROTOCOL/IMPORT_PROTOCOL';
-const IMPORT_PROTOCOL_FAILED = Symbol('PROTOCOL/IMPORT_PROTOCOL_FAILED');
 const LOAD_PROTOCOL = 'LOAD_PROTOCOL';
 const LOAD_PROTOCOL_FAILED = Symbol('LOAD_PROTOCOL_FAILED');
 const SET_PROTOCOL = 'SET_PROTOCOL';
@@ -68,45 +62,21 @@ export default function reducer(state = initialState, action = {}) {
       };
     case END_SESSION:
       return initialState;
-    case DOWNLOAD_PROTOCOL:
-    case IMPORT_PROTOCOL:
-      return {
-        ...state,
-        isLoaded: false,
-        isLoading: true,
-      };
     case LOAD_PROTOCOL:
       return {
         ...state,
         isLoaded: false,
         isLoading: true,
       };
-    case DOWNLOAD_PROTOCOL_FAILED:
-    case IMPORT_PROTOCOL_FAILED:
     case LOAD_PROTOCOL_FAILED:
       return {
         ...state,
         isLoaded: false,
-        isLoading: false,
+        isLoading: true,
       };
     default:
       return state;
   }
-}
-
-function downloadProtocolAction(uri, forNCServer) {
-  return {
-    type: DOWNLOAD_PROTOCOL,
-    uri,
-    forNCServer,
-  };
-}
-
-function importProtocolAction(path) {
-  return {
-    type: IMPORT_PROTOCOL,
-    path,
-  };
 }
 
 function loadProtocolAction(path) {
@@ -119,20 +89,6 @@ function loadProtocolAction(path) {
 function loadProtocolFailed(error) {
   return {
     type: LOAD_PROTOCOL_FAILED,
-    error,
-  };
-}
-
-function importProtocolFailed(error) {
-  return {
-    type: IMPORT_PROTOCOL_FAILED,
-    error,
-  };
-}
-
-function downloadProtocolFailed(error) {
-  return {
-    type: DOWNLOAD_PROTOCOL_FAILED,
     error,
   };
 }
@@ -152,28 +108,6 @@ function setWorkerContent(workerUrlMap = {}) {
     workerUrlMap,
   };
 }
-
-const downloadProtocolEpic = (action$, store) =>
-  action$.ofType(DOWNLOAD_PROTOCOL)
-    .switchMap((action) => {
-      let pairedServer;
-      if (action.forNCServer) {
-        pairedServer = store.getState().pairedServer;
-      }
-      return Observable
-        .fromPromise(downloadProtocol(action.uri, pairedServer))
-        .map(protocolPath => importProtocolAction(protocolPath))
-        .catch(error => Observable.of(downloadProtocolFailed(error)));
-    });
-
-const importProtocolEpic = action$ =>
-  action$.ofType(IMPORT_PROTOCOL)
-    .switchMap(action =>
-      Observable
-        .fromPromise(importProtocol(action.path))
-        .map(protocolFile => loadProtocolAction(protocolFile, null))
-        .catch(error => Observable.of(importProtocolFailed(error))),
-    );
 
 const loadProtocolEpic = action$ =>
   action$
@@ -204,27 +138,17 @@ const loadProtocolWorkerEpic = action$ =>
 
 const actionCreators = {
   loadProtocol: loadProtocolAction,
-  importProtocol: importProtocolAction,
-  downloadProtocol: downloadProtocolAction,
   setProtocol,
   loadProtocolFailed,
-  importProtocolFailed,
-  downloadProtocolFailed,
 };
 
 const actionTypes = {
-  IMPORT_PROTOCOL,
-  IMPORT_PROTOCOL_FAILED,
-  DOWNLOAD_PROTOCOL,
-  DOWNLOAD_PROTOCOL_FAILED,
   LOAD_PROTOCOL,
   LOAD_PROTOCOL_FAILED,
   SET_PROTOCOL,
 };
 
 const epics = combineEpics(
-  downloadProtocolEpic,
-  importProtocolEpic,
   loadProtocolEpic,
   loadProtocolWorkerEpic,
 );
