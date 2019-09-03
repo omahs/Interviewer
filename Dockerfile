@@ -35,6 +35,7 @@ COPY public /app/public
 COPY config /app/config
 COPY scripts /app/scripts
 COPY .eslintrc.json /app
+COPY .eslintignore /app
 COPY .babelrc /app
 RUN npm run build:ci
 
