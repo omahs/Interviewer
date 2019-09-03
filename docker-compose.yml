@@ -2,10 +2,11 @@ version: '3'
 services:
   sut:
     build: .
+    shm_size: '512m'
     volumes:
       - .:/app
       - /app/node_modules
       - /app/www
-    command: bash -c "xvfb-run -a --server-args=\"-screen 0 1024x768x24\" npm run test:e2e:ci -- regression"
+    # command: bash -c "xvfb-run -a --server-args=\"-screen 0 1024x768x24\" npm run test:e2e:ci -- regression"
     # Normally we want to do this instead, but whilst getting this to work we can just use an old build from the Dockerfile
-    # command: bash -c "npm install && npm run build:ci && xvfb-run --server-args=\"-screen 0 1024x768x24\" npm run test:e2e:ci"
+    command: bash -c "npm install && npm run build:ci && xvfb-run -a npm run test:e2e:ci"
