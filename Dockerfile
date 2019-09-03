@@ -29,6 +29,6 @@ COPY cordova-plugin-network-canvas-client /app/cordova-plugin-network-canvas-cli
 # Normally these would be run in the docker-compose script, but whilst developing we can just
 # use a cached build
 RUN npm install
-RUN npm build:ci
+RUN npm run build:ci
 
 CMD ["/usr/bin/env bash"]
