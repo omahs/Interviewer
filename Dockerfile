@@ -2,7 +2,7 @@ FROM node:8.16 as base
 RUN apt-get update
 RUN apt-get install -y git
 # RUN apt-get install -y build-essential
-RUN apt-get install -y libavahi-compat-libdnssd-dev xvfb libxtst6 libxss1 libgtk2.0-0 libgtk3-0 libnss3 libasound2 libgconf-2-4
+RUN apt-get install -y libavahi-compat-libdnssd-dev xvfb libxtst6 libxss1 libgtk2.0-0 libgtk-3-0 libnss3 libasound2 libgconf-2-4
 # RUN apt-get install g++-multilib lib32z1 lib32ncurses5 -y
 # RUN apt-get install rpm fakeroot dpkg libdbus-1-dev libx11-dev -y
 # RUN apt-get install libavahi-compat-libdnssd-dev g++ -y
