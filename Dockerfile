@@ -32,20 +32,16 @@ ENV CHROMEDRIVER_WHITELISTED_IPS "127.0.0.1"
 
 FROM environment as build
 WORKDIR /app
+
+# Npm install
+COPY cordova-plugin-network-canvas-client /app/cordova-plugin-network-canvas-client
 COPY package.json /app
 COPY package-lock.json /app
-COPY cordova-plugin-network-canvas-client /app/cordova-plugin-network-canvas-client
+RUN npm install
 
-# Normally these would be run in the docker-compose script, but whilst developing we can just
-# use a cached build
-# RUN npm install
-# COPY src /app/src
-# COPY public /app/public
-# COPY config /app/config
-# COPY scripts /app/scripts
-# COPY .eslintrc.json /app
-# COPY .eslintignore /app
-# COPY .babelrc /app
-# RUN npm run build:ci
+# Necessary config for builds
+COPY .eslintrc.json /app
+COPY .eslintignore /app
+COPY .babelrc /app
 
 CMD ["/usr/bin/env bash"]
