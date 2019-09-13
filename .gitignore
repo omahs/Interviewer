@@ -21,6 +21,7 @@ Icon^M^M
 
 .devserver
 config.xml.original
+chromedriver.log
 
 # Xcode (Cordova plugin)
 xcuserdata/
