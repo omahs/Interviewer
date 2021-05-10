@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../ducks/modules/session';
 import { getPromptIndexForCurrentSession } from '../selectors/session';
 import { getProtocolStages } from '../selectors/protocol';
 

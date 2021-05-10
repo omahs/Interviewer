@@ -22,7 +22,7 @@ const checkExistingSession = (currentName) => {
   const state = store.getState();
   const dispatch = store.dispatch;
 
-  const existingIndex = findKey(state.installedProtocols,
+  const existingIndex = findKey(state.protocols,
     protocol => protocol.name === currentName);
   const unExportedSession = findKey(state.sessions,
     session => session.protocolUID === existingIndex && !session.lastExportedAt);

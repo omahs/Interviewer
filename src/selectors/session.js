@@ -14,7 +14,7 @@ const currentPathname = (router) => router && router.location && router.location
 const stageIndexForCurrentSession = (state) => currentStageIndex(currentPathname(state.router));
 
 export const getActiveSession = (state) => (
-  state.activeSessionId && state.sessions[state.activeSessionId]
+  state.activeSessionId && state.session
 );
 
 export const getLastActiveSession = (state) => {
@@ -135,7 +135,7 @@ export const getCodebookVariablesForType = () => createSelector(
 
 export const getPromptIndexForCurrentSession = createSelector(
   (state) => (
-    state.sessions[state.activeSessionId] && state.sessions[state.activeSessionId].promptIndex
+    state.session && state.session.promptIndex
   ) || 0,
   (promptIndex) => promptIndex,
 );

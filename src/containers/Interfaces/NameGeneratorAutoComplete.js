@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import withPrompt from '../../behaviours/withPrompt';
 import Search from '../Search';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '../../ducks/modules/network';
 import { makeGetSubjectType, makeNetworkNodesForPrompt, makeGetAdditionalAttributes } from '../../selectors/interface';
 import { getNetworkNodes, makeGetNodeTypeDefinition, makeGetNodeLabel } from '../../selectors/network';

@@ -13,6 +13,7 @@ import {
   ProtocolScreen,
 } from './containers';
 import { StartScreen } from './containers/StartScreen';
+import Login from './components/Login';
 
 function mapStateToProps(state) {
   return {
@@ -45,6 +46,7 @@ export default () => (
     <LoadParamsRoute path="/session/:sessionId" component={ProtocolScreen} />
     <LoadParamsRoute path="/reset" shouldReset component={Redirect} to={{ pathname: '/start' }} />
     <Route path="/start" component={StartScreen} />
-    <Redirect to={{ pathname: '/start' }} />
+    <Route path="/login" component={Login} />
+    <Redirect to={{ pathname: '/login' }} />
   </Switch>
 );

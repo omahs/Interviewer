@@ -11,7 +11,7 @@ import { entityAttributesProperty } from '../../ducks/modules/network';
 jest.mock('../../utils/loadExternalData');
 
 const mockReducer = () => ({
-  installedProtocols: {
+  protocols: {
     mockProtocol: {
       codebook: {
         node: {},

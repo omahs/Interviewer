@@ -134,7 +134,7 @@ const mockState = {
     },
   },
   activeSessionId: 'a',
-  installedProtocols: { mockProtocol },
+  protocols: { mockProtocol },
 };
 
 describe('interface selector', () => {

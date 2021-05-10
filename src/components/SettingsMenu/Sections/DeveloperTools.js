@@ -12,10 +12,10 @@ import { actionCreators as mockActions } from '../../../ducks/modules/mock';
 import { getAdditionalAttributesForCurrentPrompt, getNodeEntryForCurrentPrompt } from '../../../selectors/session';
 import { DEVELOPMENT_PROTOCOL_URL } from '../../../config';
 import TabItemVariants from './TabItemVariants';
+import useAPI from '../../../hooks/useApi';
 
 const DeveloperTools = (props) => {
   const {
-    installedProtocols,
     handleResetAppData,
     handleAddMockNodes,
     shouldShowMocksItem,
@@ -24,6 +24,8 @@ const DeveloperTools = (props) => {
 
   const [sessionCount, setSessionCount] = useState(10);
   const [selectedProtocol, setSelectedProtocol] = useState('');
+
+  const { status, error, data: protocols } = useAPI('protocols');
 
   return (
     <>
@@ -107,12 +109,12 @@ const DeveloperTools = (props) => {
             >
               <option value="">-- Select a protocol ---</option>
               {
-                Object.keys(installedProtocols).map((protocolId) => (
+                protocols && protocols.map((protocol) => (
                   <option
-                    value={protocolId}
-                    key={protocolId}
+                    value={protocol._id}
+                    key={protocol._id}
                   >
-                    {installedProtocols[protocolId].name}
+                    {protocol.name}
                   </option>
                 ))
               }
@@ -136,7 +138,7 @@ const DeveloperTools = (props) => {
           onClick={() => {
             generateMockSessions(
               selectedProtocol,
-              installedProtocols[selectedProtocol],
+              protocols[selectedProtocol],
               sessionCount,
             );
           }}
@@ -178,7 +180,6 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 const mapStateToProps = (state) => ({
-  installedProtocols: state.installedProtocols,
   nodeVariableEntry: getNodeEntryForCurrentPrompt(state),
   shouldShowMocksItem: !!getNodeEntryForCurrentPrompt(state),
   additionalMockAttributes: getAdditionalAttributesForCurrentPrompt(state),

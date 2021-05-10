@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators, compose } from 'redux';
 import { actionCreators as resetActions } from '../ducks/modules/reset';
-import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import { actionCreators as sessionActions } from '../ducks/modules/session';
 
 class LoadParamsRoute extends Component {
@@ -11,14 +10,12 @@ class LoadParamsRoute extends Component {
   UNSAFE_componentWillMount() {
     const {
       computedMatch,
-      setSession,
       shouldReset,
       resetState,
       sessionId,
       updatePrompt,
     } = this.props;
 
-    setSession(computedMatch.params.sessionId);
 
     if (shouldReset) {
       resetState();
@@ -106,16 +103,15 @@ function mapStateToProps(state, ownProps) {
   return {
     backParam: ownProps.location.search,
     sessionId: state.activeSessionId,
-    stageIndex: state.activeSessionId && state.sessions[state.activeSessionId].stageIndex,
+    stageIndex: state.activeSessionId && state.session.stageIndex,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     resetState: bindActionCreators(resetActions.resetAppState, dispatch),
-    updatePrompt: bindActionCreators(sessionsActions.updatePrompt, dispatch),
-    updateStage: bindActionCreators(sessionsActions.updateStage, dispatch),
-    setSession: bindActionCreators(sessionActions.setSession, dispatch),
+    updatePrompt: bindActionCreators(sessionActions.updatePrompt, dispatch),
+    updateStage: bindActionCreators(sessionActions.updateStage, dispatch),
   };
 }
 

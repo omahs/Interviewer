@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { get } from 'lodash';
-import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../../ducks/modules/session';
 import { entityPrimaryKeyProperty } from '../../../ducks/modules/network';
 import { entityAttributesProperty } from '../../../utils/network-exporters/src/utils/reservedAttributes';
 

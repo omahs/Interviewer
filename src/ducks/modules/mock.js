@@ -3,7 +3,7 @@
 import faker from 'faker';
 import uuid from 'uuid/v4';
 import { has, times, omit } from 'lodash';
-import { actionCreators as sessionsActions } from './sessions';
+import { actionCreators as sessionsActions } from './session';
 import { entityPrimaryKeyProperty, entityAttributesProperty } from './network';
 
 const MOCK_GENERATE_NODES = 'MOCK/GENERATE_NODES';

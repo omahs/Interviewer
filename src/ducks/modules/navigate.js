@@ -3,7 +3,7 @@
 import { push } from 'connected-react-router';
 import { isStageSkipped } from '../../selectors/skip-logic';
 import { getSessionPath, getSessionProgress } from '../../selectors/session';
-import { actionCreators as sessionsActions } from './sessions';
+import { actionCreators as sessionsActions } from './session';
 
 /**
  * Turn a positive or negative number into either +1/-1

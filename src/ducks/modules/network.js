@@ -4,7 +4,7 @@ import {
 import uuid from 'uuid/v4';
 
 /*
- * For actionCreators see `src/ducks/modules/sessions`
+ * For actionCreators see `src/ducks/modules/session`
  */
 
 // Property name for the primary key for nodes or edged
@@ -345,5 +345,5 @@ const actionCreators = {
 export {
   actionTypes,
   actionCreators,
-  // For actionCreators see `src/ducks/modules/sessions`
+  // For actionCreators see `src/ducks/modules/session`
 };

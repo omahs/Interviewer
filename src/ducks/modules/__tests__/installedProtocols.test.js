@@ -4,7 +4,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunks from 'redux-thunk';
 
-import reducer, { actionCreators, actionTypes } from '../installedProtocols';
+import reducer, { actionCreators, actionTypes } from '../protocols';
 import deleteProtocol from '../../../utils/protocol/deleteProtocol';
 import { actionCreators as dialogsActions } from '../dialogs';
 

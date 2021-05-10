@@ -322,14 +322,13 @@ class ApiClient {
       return Promise.reject('No secure client available');
     }
 
-    if (isCordova()) {
+    if (!isElectron()) {
       return this.httpsClient.download(path, destination).catch(handleError);
-    } if (isElectron()) {
-      return this.httpsClient
-        .get(path, { ...this.authHeader, responseType: 'arraybuffer' })
-        .then((resp) => new Uint8Array(resp.data));
     }
-    return Promise.reject(new Error('Downloads not supported on this platform'));
+
+    return this.httpsClient
+      .get(path, { ...this.authHeader, responseType: 'arraybuffer' })
+      .then((resp) => new Uint8Array(resp.data));
   }
 
   /**

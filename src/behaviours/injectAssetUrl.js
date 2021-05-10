@@ -10,7 +10,7 @@ import { getAssetManifest } from '../selectors/protocol';
 // curry asset fetcher with protocol path from state
 const mapStateToProps = (state) => ({
   getAssetUrl: (asset) => {
-    const { protocolUID } = state.sessions[state.activeSessionId];
+    const { protocolUID } = state.session;
     const assetManifest = getAssetManifest(state);
     const assetSource = get(assetManifest, [asset, 'source']);
 

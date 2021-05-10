@@ -25,7 +25,7 @@ const mockState = {
       },
     },
   },
-  installedProtocols: {
+  protocols: {
     mockProtocol: {
       stages: [
         { id: 1 },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import HeaderSection from './HeaderSection';
 import InterviewSection from './InterviewSection';
@@ -8,6 +8,7 @@ import ImportSection from './ImportSection';
 import ServerSection from './ServerSection';
 import WhatsNewSection from './WhatsNewSection';
 import DataExportSection from './DataExportSection';
+import Navigation from './Navigation';
 
 const StartScreen = ({
   activeSessionId,
@@ -29,23 +30,32 @@ const StartScreen = ({
     return (<Redirect to={{ pathname: `${pathname}` }} />);
   }
 
+  const { isLoggedIn } = useSelector((state) => state.auth);
+
+  if (!isLoggedIn) {
+    return <Redirect to="/login" />;
+  }
+
   return (
-    <div className="start-screen">
-      <motion.div
-        className="start-screen__container"
-        variants={variants}
-        animate="show"
-        initial="hide"
-        key="start-screen"
-      >
-        <HeaderSection />
-        <WhatsNewSection />
-        <InterviewSection />
-        <DataExportSection />
-        <ImportSection />
-        <ServerSection />
-      </motion.div>
-    </div>
+    <>
+      <Navigation />
+      <div className="start-screen">
+        <motion.div
+          className="start-screen__container"
+          variants={variants}
+          animate="show"
+          initial="hide"
+          key="start-screen"
+        >
+          {/* <HeaderSection /> */}
+          {/* <WhatsNewSection /> */}
+          <InterviewSection />
+          <DataExportSection />
+          {/* <ImportSection /> */}
+          {/* <ServerSection /> */}
+        </motion.div>
+      </div>
+    </>
   );
 };
 

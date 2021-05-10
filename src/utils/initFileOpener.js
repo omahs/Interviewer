@@ -10,6 +10,8 @@ if (isElectron()) {
 }
 
 const initFileOpener = () => {
+  if (!isElectron()) { return; }
+
   ipcRenderer.on('OPEN_FILE', (event, protocolPath) => {
     // eslint-disable-next-line no-console
     console.log(`Open file "${protocolPath}"`);

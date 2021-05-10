@@ -40,7 +40,7 @@ const ProtocolUrlForm = ({
   };
 
   const initialValues = {
-    protocol_url: 'https://',
+    protocol_url: 'https://raw.githubusercontent.com/complexdatacollective/development-protocol/master/protocol.json',
   };
 
   return (

@@ -6,7 +6,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { actionCreators as modalActions } from '../../ducks/modules/modals';
 import { PromptSwiper } from '../../containers/';
 import { NodeList, DropZone } from '../../components/';

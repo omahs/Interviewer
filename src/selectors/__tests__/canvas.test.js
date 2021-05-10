@@ -28,7 +28,7 @@ const mockState = {
       },
     },
   },
-  installedProtocols: {
+  protocols: {
     mockProtocol: {
       codebook: {
         node: {
@@ -86,32 +86,6 @@ describe('canvas selectors', () => {
 
       expect(subject).toMatchObject(
         { _uid: 2 },
-      );
-    });
-  });
-
-  describe('makeGetNextUnplacedNode() uses sort', () => {
-    const getNextUnplacedNode = makeGetNextUnplacedNode();
-
-    it('selects the next unplaced node', () => {
-      const props = {
-        prompt: {
-          layout: {
-            layoutVariable: 'closeness',
-          },
-          sortOrder: [
-            {
-              property: 'name',
-              direction: 'asc',
-            },
-          ],
-        },
-      };
-
-      const subject = getNextUnplacedNode(mockState, props);
-
-      expect(subject).toMatchObject(
-        { _uid: 3 },
       );
     });
   });

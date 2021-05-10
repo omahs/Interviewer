@@ -20,7 +20,7 @@ const mockState = {
       protocolUID: 'MOCK_PROTOCOL',
     },
   },
-  installedProtocols: {
+  protocols: {
     MOCK_PROTOCOL: {
       stages: [
         {

@@ -3,7 +3,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { getEntityAttributes, entityPrimaryKeyProperty } from '../../ducks/modules/network';
 import { CategoricalItem } from '../../components';
 import Overlay from '../Overlay';

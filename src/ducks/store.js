@@ -30,7 +30,7 @@ const persistConfig = {
   whitelist: [
     'deviceSettings',
     'pairedServer',
-    'installedProtocols',
+    'protocols',
     'router',
     'search',
     'activeSessionId',

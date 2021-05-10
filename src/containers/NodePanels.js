@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { makeGetAdditionalAttributes } from '../selectors/interface';
-import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../ducks/modules/session';
 import { entityPrimaryKeyProperty } from '../ducks/modules/network';
 import { Panels } from '../components';
 import { makeGetPanelConfiguration } from '../selectors/name-generator';

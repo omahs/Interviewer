@@ -2,7 +2,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { actionTypes as dialogActionTypes } from '../dialogs';
-import { actionCreators as installedProtocolActions, actionTypes as installedProtocolActionTypes } from '../installedProtocols';
+import { actionCreators as installedProtocolActions, actionTypes as installedProtocolActionTypes } from '../protocols';
 import { actionCreators as serverActions, actionTypes as serverActionTypes } from '../pairedServer';
 
 const mockError = new Error('foo');

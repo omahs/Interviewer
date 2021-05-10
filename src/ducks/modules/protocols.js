@@ -8,7 +8,7 @@ const IMPORT_PROTOCOL_COMPLETE = 'IMPORT_PROTOCOL_COMPLETE';
 const IMPORT_PROTOCOL_FAILED = 'IMPORT_PROTOCOL_FAILED';
 const DELETE_PROTOCOL = 'INSTALLED_PROTOCOLS/DELETE_PROTOCOL';
 
-const initialState = {};
+const initialState = null;
 
 const protocolHasSessions = (state, protocolUID) => new Promise((resolve) => {
   const hasNotExportedSession = !!findKey(
@@ -83,6 +83,10 @@ export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
     case DELETE_PROTOCOL:
       return omit(state, [action.protocolUID]);
+
+    case 'UPDATE_PROTOCOLS': {
+      return action.payload;
+    }
     case IMPORT_PROTOCOL_COMPLETE: {
       const newProtocol = action.protocolData;
 
@@ -125,6 +129,11 @@ const importProtocolFailedAction = withErrorDialog((error) => ({
   error,
 }));
 
+const updateProtocols = (protocols) => ({
+  type: 'UPDATE_PROTOCOLS',
+  payload: protocols,
+});
+
 const actionTypes = {
   DELETE_PROTOCOL,
   IMPORT_PROTOCOL_COMPLETE,
@@ -135,6 +144,7 @@ const actionCreators = {
   deleteProtocol: deleteProtocolAction,
   importProtocolCompleteAction,
   importProtocolFailedAction,
+  updateProtocols,
 };
 
 export {

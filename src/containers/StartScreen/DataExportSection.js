@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { get, difference } from 'lodash';
+import { get, difference, isNull } from 'lodash';
 import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@codaco/ui';
 import { SessionCard } from '@codaco/ui/lib/components/Cards';
 import { exportToFile, exportToServer } from '../../utils/exportProcess';
 import Section from './Section';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import useServerConnectionStatus from '../../hooks/useServerConnectionStatus';
 import { Switch } from '../../components';
 import NewFilterableListWrapper, { getFilteredList } from '../../components/NewFilterableListWrapper';
 import { asNetworkWithSessionVariables } from '../../utils/networkFormat';
 import formatDatestamp from '../../utils/formatDatestamp';
+import useAPI from '../../hooks/useApi';
 
 const oneBasedIndex = (i) => parseInt(i || 0, 10) + 1;
 
 const DataExportSection = () => {
-  const sessions = useSelector((state) => state.sessions);
+  const { status, error, data: sessions } = useAPI('user/sessions');
   const [filterTerm, setFilterTerm] = useState(null);
   const [selectedSessions, setSelectedSessions] = useState([]);
 
   const pairedServer = useSelector((state) => state.pairedServer);
   const pairedServerConnection = useServerConnectionStatus(pairedServer);
-  const installedProtocols = useSelector((state) => state.installedProtocols);
+  const protocols = useSelector((state) => state.protocols);
 
   const dispatch = useDispatch();
   const deleteSession = (id) => dispatch(sessionsActions.removeSession(id));
@@ -64,10 +65,9 @@ const DataExportSection = () => {
     ]);
   };
 
-  const formattedSessions = [...Object.keys(sessions)].map((sessionUUID) => {
-    const session = sessions[sessionUUID];
-
+  const formattedSessions = sessions && sessions.map((session) => {
     const {
+      _id,
       caseId,
       startedAt,
       updatedAt,
@@ -75,10 +75,7 @@ const DataExportSection = () => {
       exportedAt,
     } = session;
 
-    const protocol = get(installedProtocols, [session.protocolUID]);
-    const progress = Math.round(
-      (oneBasedIndex(session.stageIndex) / oneBasedIndex(protocol.stages.length)) * 100,
-    );
+    const progress = 15;
 
     return {
       caseId,
@@ -87,17 +84,13 @@ const DataExportSection = () => {
       finishedAt: formatDatestamp(finishedAt),
       updatedAt: formatDatestamp(updatedAt),
       exportedAt: formatDatestamp(exportedAt),
-      key: sessionUUID,
-      protocolName: protocol.name,
-      sessionUUID,
-      selected: selectedSessions.includes(sessionUUID),
-      onClickHandler: () => handleSessionCardClick(sessionUUID),
+      key: _id,
+      selected: selectedSessions.includes(_id),
+      onClickHandler: () => handleSessionCardClick(_id),
     };
   });
 
   const [filteredSessions, setFilteredSessions] = useState(formattedSessions);
-  const filteredIds = filteredSessions.map(({ sessionUUID }) => sessionUUID);
-  // const selectedFilteredIds = intersection(selectedSessions, filteredIds);
 
   useEffect(() => {
     const newFilteredSessions = getFilteredList(formattedSessions, filterTerm, null);
@@ -110,7 +103,7 @@ const DataExportSection = () => {
 
     const sessionsToExport = selectedSessions
       .map((session) => {
-        const sessionProtocol = installedProtocols[sessions[session].protocolUID];
+        const sessionProtocol = protocols[sessions[session].protocolUID];
 
         return asNetworkWithSessionVariables(
           session,
@@ -122,44 +115,44 @@ const DataExportSection = () => {
     exportFunction(sessionsToExport);
   };
 
-  if (Object.keys(sessions).length === 0) { return null; }
+  if (sessions && sessions.length === 0) { return null; }
 
-  const isSelectAll = (
-    selectedSessions.length > 0
-    && selectedSessions.length === filteredIds.length
-    && difference(selectedSessions, filteredIds).length === 0
-  );
+  // const isSelectAll = (
+  //   selectedSessions.length > 0
+  //   && selectedSessions.length === filteredIds.length
+  //   && difference(selectedSessions, filteredIds).length === 0
+  // );
 
-  const toggleSelectAll = () => {
-    if (!isSelectAll) {
-      setSelectedSessions([...filteredIds]);
-      return;
-    }
+  // const toggleSelectAll = () => {
+  //   if (!isSelectAll) {
+  //     setSelectedSessions([...filteredIds]);
+  //     return;
+  //   }
 
-    setSelectedSessions([]);
-  };
+  //   setSelectedSessions([]);
+  // };
 
-  const unexportedSessions = filteredSessions
-    .reduce((acc, { exportedAt, sessionUUID }) => {
-      if (exportedAt) { return acc; }
-      return [...acc, sessionUUID];
-    }, []);
+  // const unexportedSessions = filteredSessions
+  //   .reduce((acc, { exportedAt, sessionUUID }) => {
+  //     if (exportedAt) { return acc; }
+  //     return [...acc, sessionUUID];
+  //   }, []);
 
-  const isUnexportedSelected = (
-    unexportedSessions.length > 0
-    && selectedSessions.length > 0
-    && selectedSessions.length === unexportedSessions.length
-    && difference(selectedSessions, unexportedSessions).length === 0
-  );
+  // const isUnexportedSelected = (
+  //   unexportedSessions.length > 0
+  //   && selectedSessions.length > 0
+  //   && selectedSessions.length === unexportedSessions.length
+  //   && difference(selectedSessions, unexportedSessions).length === 0
+  // );
 
-  const toggleSelectUnexported = () => {
-    if (!isUnexportedSelected) {
-      setSelectedSessions(unexportedSessions);
-      return;
-    }
+  // const toggleSelectUnexported = () => {
+  //   if (!isUnexportedSelected) {
+  //     setSelectedSessions(unexportedSessions);
+  //     return;
+  //   }
 
-    setSelectedSessions([]);
-  };
+  //   setSelectedSessions([]);
+  // };
 
   return (
     <Section className="start-screen-section data-export-section">
@@ -176,6 +169,7 @@ const DataExportSection = () => {
           ItemComponent={SessionCard}
           items={filteredSessions}
           propertyPath={null}
+          loading={isNull(sessions) && isNull(error)}
           initialSortProperty="updatedAt"
           initialSortDirection="desc"
           onFilterChange={handleFilterChange}
@@ -202,14 +196,14 @@ const DataExportSection = () => {
             <Switch
               className="header-toggle"
               label="Select un-exported"
-              on={isUnexportedSelected}
-              onChange={toggleSelectUnexported}
+              // on={isUnexportedSelected}
+              // onChange={toggleSelectUnexported}
             />
             <Switch
               className="header-toggle"
               label="Select all"
-              on={isSelectAll}
-              onChange={toggleSelectAll}
+              // on={isSelectAll}
+              // onChange={toggleSelectAll}
             />
           </div>
           { selectedSessions.length > 0

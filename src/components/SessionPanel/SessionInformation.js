@@ -3,7 +3,7 @@ import { countBy } from 'lodash';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { Node, Icon, Button } from '@codaco/ui';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { getCaseId, getSessionProgress } from '../../selectors/session';
 import { getActiveProtocolName, getProtocolCodebook } from '../../selectors/protocol';
 import { getNetwork } from '../../selectors/network';

@@ -17,16 +17,15 @@ const ResumeSessionPicker = ({
   const setSession = (sessionUID) => dispatch(sessionActions.setSession(sessionUID));
 
   const sessions = useSelector((state) => state.sessions);
-  const installedProtocols = useSelector((state) => state.installedProtocols);
+  const protocols = useSelector((state) => state.protocols);
 
   const handleSessionCardClick = (sessionUUID) => {
     setSession(sessionUUID);
     onClose();
   };
 
-  const formattedSessions = [...Object.keys(sessions)].map((sessionUUID) => {
-    const session = sessions[sessionUUID];
-    const protocol = get(installedProtocols, [session.protocolUID]);
+  const formattedSessions = sessions && sessions.map((session) => {
+    const protocol = get(protocols, [session.protocolUID]);
 
     const progress = Math.round(
       (oneBasedIndex(session.stageIndex) / oneBasedIndex(protocol.stages.length)) * 100,
@@ -40,7 +39,7 @@ const ResumeSessionPicker = ({
       exportedAt: formatDatestamp(session.exportedAt),
       protocolName: protocol.name,
       progress,
-      onClickHandler: () => handleSessionCardClick(sessionUUID),
+      onClickHandler: () => handleSessionCardClick(session._id),
     };
   });
 

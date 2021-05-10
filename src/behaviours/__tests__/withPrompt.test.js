@@ -16,7 +16,7 @@ describe('withPrompt', () => {
         promptIndex: 99,
       },
     },
-    installedProtocols: {
+    protocols: {
       mockProtocol: {
         stages: [{}, {}],
       },

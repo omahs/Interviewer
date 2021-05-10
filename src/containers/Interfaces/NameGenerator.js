@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { get, has, omit } from 'lodash';
 import { Icon } from '@codaco/ui';
 import withPrompt from '../../behaviours/withPrompt';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes } from '../../selectors/interface';
 import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../selectors/name-generator';
 import PromptSwiper from '../PromptSwiper';

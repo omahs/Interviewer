@@ -6,7 +6,7 @@ import thunk from 'redux-thunk';
 import uuid from 'uuid/v4';
 import reducer, { getReducer, actionCreators, actionTypes } from '../sessions';
 import { actionTypes as networkActionTypes, actionCreators as networkActions } from '../network';
-import { actionTypes as installedProtocolsActionTypes } from '../installedProtocols';
+import { actionTypes as protocolsActionTypes } from '../protocols';
 
 jest.mock('../network');
 
@@ -108,7 +108,7 @@ describe('sessions', () => {
     it('should handle DELETE_PROTOCOL', () => {
       const newState = reducer(mockStateWithProtocol,
         {
-          type: installedProtocolsActionTypes.DELETE_PROTOCOL,
+          type: protocolsActionTypes.DELETE_PROTOCOL,
           protocolUID: '1234',
         });
 
@@ -189,7 +189,7 @@ describe('sessions', () => {
             protocolUID: 'mockProtocol',
           },
         },
-        installedProtocols: {
+        protocols: {
           mockProtocol: {
             codebook: {
               node: {

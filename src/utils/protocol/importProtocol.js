@@ -4,7 +4,7 @@ import { CancellationError } from 'builder-util-runtime';
 import { ProgressBar, Spinner } from '@codaco/ui';
 import { store } from '../../ducks/store';
 import { removeDirectory } from '../../utils/filesystem';
-import { actionCreators as installedProtocolActions } from '../../ducks/modules/installedProtocols';
+import { actionCreators as installedProtocolActions } from '../../ducks/modules/protocols';
 import downloadProtocol from '../../utils/protocol/downloadProtocol';
 import extractProtocol from '../../utils/protocol/extractProtocol';
 import parseProtocol from '../../utils/protocol/parseProtocol';
@@ -61,6 +61,14 @@ export const importProtocolFromURI = (uri, usePairedServer) => {
   }
 
   const toastUUID = uuid();
+
+  return fetch(uri).then(response => {
+    return response.json().then(json => {
+      console.log('content', json);
+      dispatch(installedProtocolActions.importProtocolCompleteAction(json));
+    });
+
+  });
 
   // Create a toast to show the status as it updates
   dispatch(toastActions.addToast({
@@ -132,7 +140,7 @@ export const importProtocolFromURI = (uri, usePairedServer) => {
       .then((protocolContent) => {
         if (cancelled) return cancelledImport();
 
-        // Send the payload to installedProtocols
+        // Send the payload to protocols
         dispatch(installedProtocolActions.importProtocolCompleteAction(protocolContent));
 
         // Remove the status toast
@@ -256,7 +264,7 @@ export const importProtocolFromFile = (filePath, name) => {
     })
     .then((protocolContent) => {
       if (cancelled) return cancelledImport(protocolContent.uid);
-        // Send the payload to installedProtocols
+        // Send the payload to protocols
         dispatch(installedProtocolActions.importProtocolCompleteAction(protocolContent));
 
         // Remove the status toast

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { NewFilterableListWrapper, NodeBin } from '../../components';
-import { actionCreators as installedProtocolActions } from '../../ducks/modules/installedProtocols';
+import { actionCreators as installedProtocolActions } from '../../ducks/modules/protocols';
 import { Overlay } from '../Overlay';
 import { DragSource } from '../../behaviours/DragAndDrop';
 import { ProtocolCard } from '../../components/Cards';
@@ -11,17 +11,17 @@ import { entityAttributesProperty } from '../../ducks/modules/network';
 const ManageProtocolsOverlay = ({
   show,
   onClose,
-  installedProtocols,
+  protocols,
   deleteProtocol,
 }) => {
-  const formattedProtocols = [...Object.keys(installedProtocols)].map((protocolUID) => {
+  const formattedProtocols = [...Object.keys(protocols)].map((protocolUID) => {
     const {
       schemaVersion,
       lastModified,
       installationDate,
       name,
       description,
-    } = installedProtocols[protocolUID];
+    } = protocols[protocolUID];
 
     return {
       [entityAttributesProperty]: {
@@ -79,12 +79,12 @@ const ManageProtocolsOverlay = ({
 };
 
 ManageProtocolsOverlay.propTypes = {
-  installedProtocols: PropTypes.object.isRequired,
+  protocols: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    installedProtocols: state.installedProtocols,
+    protocols: state.protocols,
   };
 }
 

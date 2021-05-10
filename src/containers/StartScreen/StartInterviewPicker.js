@@ -1,53 +1,64 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { ProtocolCard } from '@codaco/ui/lib/components/Cards';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
+import { importProtocolFromURI } from '../../utils/protocol/importProtocol';
 import NewFilterableListWrapper from '../../components/NewFilterableListWrapper';
-import NewSessionOverlay from './NewSessionOverlay';
 import { Overlay } from '../Overlay';
+import { entityAttributesProperty } from '../../ducks/modules/network';
+import { ProtocolCard } from '../../components/Cards';
+import useAPI from '../../hooks/useApi';
+import { isNull } from 'lodash';
 
 const StartInterviewPicker = ({
   show,
   onClose,
-  addSession,
-  installedProtocols,
 }) => {
-  const [showNewSessionOverlay, setShowNewSessionOverlay] = useState(false);
-  const [selectedProtocol, setSelectedProtocol] = useState(null);
-
-  const handleCloseNewSessionOverlay = () => {
-    setShowNewSessionOverlay(false);
-    setSelectedProtocol(null);
-  };
-
-  const handleCreateSession = (caseId) => {
-    addSession(caseId, selectedProtocol);
-    handleCloseNewSessionOverlay();
+  const handleProtocolCardClick = (downloadPath) => {
+    importProtocolFromURI(downloadPath, true);
     onClose();
   };
 
-  const handleProtocolCardClick = (protocolUID) => {
-    setShowNewSessionOverlay(true);
-    setSelectedProtocol(protocolUID);
+  const { status, error, data: protocolList } = useAPI('protocols');
+
+  const dispatch = useDispatch();
+  const openDialog = (dialog) => dispatch(dialogActions.openDialog(dialog));
+
+  const handleApiError = (error) => {
+    const errorObject = new Error(error);
+    errorObject.friendlyMessage = 'There was an error fetching the protocol list from Server. Consult the error message below for further information. Contact the Network Canvas project team for help with this error.';
+    openDialog({
+      type: 'Error',
+      title: 'Error fetching protocol list from Server',
+      error: errorObject,
+      confirmLabel: 'Okay',
+      onConfirm: () => {
+        setLoading(false);
+        onClose();
+      },
+    });
   };
 
-  const formattedProtocols = [...Object.keys(installedProtocols)].map((protocolUID) => {
+  if (error) {
+    handleApiError(error);
+  }
+
+  const formattedProtocols = protocolList && protocolList.map((protocol) => {
     const {
       schemaVersion,
       lastModified,
-      installationDate,
       name,
       description,
-    } = installedProtocols[protocolUID];
+      downloadPath,
+    } = protocol;
 
     return {
-      schemaVersion,
-      lastModified,
-      installationDate,
-      name,
-      description,
-      onClickHandler: () => handleProtocolCardClick(protocolUID),
+      [entityAttributesProperty]: {
+        schemaVersion,
+        lastModified,
+        name,
+        description,
+      },
+      onClickHandler: () => handleProtocolCardClick(downloadPath),
     };
   });
 
@@ -55,13 +66,14 @@ const StartInterviewPicker = ({
     <Overlay
       show={show}
       onClose={onClose}
-      title="Select a Protocol"
+      title="Select a Protocol to Use"
       fullheight
     >
       <NewFilterableListWrapper
         ItemComponent={ProtocolCard}
+        loading={isNull(protocolList) && isNull(error)}
         items={formattedProtocols}
-        propertyPath={null}
+        propertyPath="attributes"
         initialSortProperty="name"
         initialSortDirection="asc"
         sortableProperties={[
@@ -70,37 +82,13 @@ const StartInterviewPicker = ({
             variable: 'name',
           },
           {
-            label: 'Installed',
-            variable: 'installationDate',
-          },
-          {
             label: 'Modified',
             variable: 'lastModified',
           },
         ]}
       />
-      <NewSessionOverlay
-        handleSubmit={handleCreateSession}
-        onClose={handleCloseNewSessionOverlay}
-        show={showNewSessionOverlay}
-      />
     </Overlay>
   );
 };
 
-StartInterviewPicker.propTypes = {
-  installedProtocols: PropTypes.object.isRequired,
-  addSession: PropTypes.func.isRequired,
-};
-
-function mapStateToProps(state) {
-  return {
-    installedProtocols: state.installedProtocols,
-  };
-}
-
-const mapDispatchToProps = (dispatch) => ({
-  addSession: (caseId, protocol) => dispatch(sessionsActions.addSession(caseId, protocol)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(StartInterviewPicker);
+export default StartInterviewPicker;

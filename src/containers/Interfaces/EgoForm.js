@@ -9,7 +9,7 @@ import { submit, isValid, isDirty } from 'redux-form';
 import ReactMarkdown from 'react-markdown';
 import { isIOS } from '../../utils/Environment';
 import Form from '../Form';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { getNetworkEgo } from '../../selectors/network';
 import { getSessionProgress } from '../../selectors/session';
 import defaultMarkdownRenderers from '../../utils/markdownRenderers';

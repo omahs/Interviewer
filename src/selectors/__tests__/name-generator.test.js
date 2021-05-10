@@ -75,7 +75,7 @@ const mockState = {
       protocolUID: 'mockProtocol',
     },
   },
-  installedProtocols: {
+  protocols: {
     mockProtocol,
   },
 };

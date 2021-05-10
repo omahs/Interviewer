@@ -4,7 +4,7 @@ import { batch } from 'react-redux';
 import { ProgressBar, Spinner, Icon } from '@codaco/ui';
 import { store } from '../ducks/store';
 import { actionCreators as toastActions } from '../ducks/modules/toasts';
-import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../ducks/modules/session';
 import { actionCreators as dialogActions } from '../ducks/modules/dialogs';
 import { withErrorDialog } from '../ducks/modules/errors';
 import ApiClient from './ApiClient';
@@ -49,7 +49,7 @@ const fatalExportErrorAction = withErrorDialog((error) => ({
 
 export const exportToFile = (sessionList) => {
   const {
-    installedProtocols,
+    protocols,
     deviceSettings: {
       exportGraphML,
       exportCSV,
@@ -169,7 +169,7 @@ export const exportToFile = (sessionList) => {
   // The protocol object needs to be reformatted so that it is keyed by
   // the sha of protocol.name, since this is what Server and network-exporters
   // use.
-  const reformatedProtocols = Object.values(installedProtocols)
+  const reformatedProtocols = Object.values(protocols)
     .reduce((acc, protocol) => ({
       ...acc,
       [getRemoteProtocolID(protocol.name)]: protocol,

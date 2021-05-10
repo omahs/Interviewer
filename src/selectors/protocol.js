@@ -4,6 +4,7 @@ import {
   values,
   mapValues,
   omit,
+  isNull,
 } from 'lodash';
 import { createSelector } from 'reselect';
 import { entityAttributesProperty } from '../ducks/modules/network';
@@ -16,7 +17,7 @@ const DefaultFinishStage = {
 };
 
 const getActiveSession = (state) => (
-  state.activeSessionId && state.sessions[state.activeSessionId]
+  state.activeSessionId && state.session
 );
 
 const getLastActiveSession = (state) => {
@@ -38,11 +39,11 @@ const getLastActiveSession = (state) => {
   };
 };
 
-export const getInstalledProtocols = (state) => state.installedProtocols;
+export const getProtocols = (state) => state.protocols;
 
 export const getCurrentSessionProtocol = createSelector(
   (state, props) => getActiveSession(state, props),
-  getInstalledProtocols,
+  getProtocols,
   (session, protocols) => {
     if (!session) {
       return {};
@@ -54,16 +55,16 @@ export const getCurrentSessionProtocol = createSelector(
 // Use the protocol associated with the last active session, unless there is a protocol with
 // an `installationDate` that is more recent.
 export const getLastActiveProtocol = (state) => {
-  const installedProtocols = getInstalledProtocols(state);
+  const protocols = getProtocols(state);
 
-  if (Object.keys(installedProtocols).length === 0) {
+  if (isNull(protocols)) {
     return null;
   }
 
   const lastActiveSession = getLastActiveSession(state);
   const lastActiveAttributes = lastActiveSession[entityAttributesProperty];
 
-  const protocolsCollection = values(mapValues(installedProtocols, (protocol, protocolUID) => ({
+  const protocolsCollection = values(mapValues(protocols, (protocol, protocolUID) => ({
     protocolUID,
     ...protocol,
   })));
@@ -76,7 +77,7 @@ export const getLastActiveProtocol = (state) => {
     && lastActiveAttributes.updatedAt > lastInstalledProtocol.installationDate
   ) {
     return {
-      ...installedProtocols[lastActiveSession[entityAttributesProperty].protocolUID],
+      ...protocols[lastActiveSession[entityAttributesProperty].protocolUID],
       protocolUID: lastActiveSession[entityAttributesProperty].protocolUID,
     };
   }

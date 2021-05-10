@@ -13,7 +13,7 @@ jest.mock('@codaco/ui/lib/utils/CSSVariables');
 const mockStore = () => createStore(
   () => (
     {
-      installedProtocols: {
+      protocols: {
         config: {
           registry: {},
         },

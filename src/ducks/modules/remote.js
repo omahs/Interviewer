@@ -2,8 +2,8 @@
 
 import { push } from 'connected-react-router';
 import { actionCreators as resetActions } from './reset';
-import { actionCreators as installedProtocolActions } from './installedProtocols';
-import { actionCreators as sessionActions } from './sessions';
+import { actionCreators as installedProtocolActions } from './protocols';
+import { actionCreators as sessionActions } from './session';
 
 /**
  * action dispatchers for remotely driving Interviewer

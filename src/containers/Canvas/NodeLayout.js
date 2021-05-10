@@ -3,7 +3,7 @@ import { isNil } from 'lodash';
 import { connect } from 'react-redux';
 import { compose, withHandlers, withState } from 'recompose';
 import { withBounds } from '../../behaviours';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { entityPrimaryKeyProperty, entityAttributesProperty } from '../../ducks/modules/network';
 import { DropTarget } from '../../behaviours/DragAndDrop';
 import NodeLayout from '../../components/Canvas/NodeLayout';

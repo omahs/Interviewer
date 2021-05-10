@@ -12,7 +12,7 @@ const SessionCard = ({
 }) => {
   const sessions = useSelector((state) => state.sessions);
   const session = sessions[sessionUUID];
-  const installedProtocols = useSelector((state) => state.installedProtocols);
+  const protocols = useSelector((state) => state.protocols);
 
   if (!session) { return null; }
 
@@ -29,7 +29,7 @@ const SessionCard = ({
     stageIndex,
   } = session;
 
-  const protocol = installedProtocols[protocolUID];
+  const protocol = protocols[protocolUID];
 
   const {
     name,

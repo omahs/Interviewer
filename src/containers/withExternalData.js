@@ -18,10 +18,10 @@ import getParentKeyByNameValue from '../utils/getParentKeyByNameValue';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '../ducks/modules/network';
 
 const mapStateToProps = (state) => {
-  const session = state.sessions[state.activeSessionId];
+  const session = state.session;
   const { protocolUID } = session;
-  const protocolCodebook = state.installedProtocols[protocolUID].codebook;
-  const { assetManifest } = state.installedProtocols[protocolUID];
+  const protocolCodebook = state.protocols[protocolUID].codebook;
+  const { assetManifest } = state.protocols[protocolUID];
   const assetFiles = mapValues(
     assetManifest,
     (asset) => asset.source,

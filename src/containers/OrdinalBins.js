@@ -7,7 +7,7 @@ import color from 'color';
 import { MarkdownLabel } from '@codaco/ui/lib/components/Fields';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { makeNetworkNodesForType, makeGetVariableOptions, makeGetPromptVariable } from '../selectors/interface';
-import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../ducks/modules/session';
 import { NodeList } from '../components';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
 import { getEntityAttributes, entityAttributesProperty, entityPrimaryKeyProperty } from '../ducks/modules/network';

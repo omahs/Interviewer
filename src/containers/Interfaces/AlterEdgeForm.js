@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { makeNetworkEdgesForType } from '../../selectors/interface';
 import SlideFormEdge from '../SlidesForm/SlideFormEdge';
 import SlidesForm from '../SlidesForm/SlidesForm';

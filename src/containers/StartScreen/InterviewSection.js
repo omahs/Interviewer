@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isNull } from 'lodash';
+import { Spinner } from '@codaco/ui';
+import { SessionCard } from '@codaco/ui/lib/components/Cards';
 import Section from './Section';
-import { ProtocolCard, SessionCard } from '../../components/Cards';
-import { actionCreators as sessionActions } from '../../ducks/modules/sessions';
+import { ProtocolCard } from '../../components/Cards';
+import { actionCreators as sessionActions } from '../../ducks/modules/session';
 import { actionCreators as uiActions } from '../../ducks/modules/ui';
-import { getLastActiveSession } from '../../selectors/session';
-import { getLastActiveProtocol } from '../../selectors/protocol';
 import NewSessionOverlay from './NewSessionOverlay';
 import StackButton from '../../components/StackButton';
 import ResumeSessionPicker from './ResumeSessionPicker';
 import StartInterviewPicker from './StartInterviewPicker';
+import useAPI from '../../hooks/useApi';
 
 const InterviewSection = () => {
-  const installedProtocols = useSelector((state) => state.installedProtocols);
-  const sessions = useSelector((state) => state.sessions);
+  // const protocols = useSelector((state) => state.protocols);
 
-  const lastActiveSession = useSelector((state) => getLastActiveSession(state));
-  const lastActiveProtocol = useSelector((state) => getLastActiveProtocol(state));
+  const { status: protocolStatus, error: protocolError, data: protocols } = useAPI('protocols');
+  const { status, error, data: sessions } = useAPI('user/sessions');
 
   const dispatch = useDispatch();
   const addSession = (caseId, protocol) => dispatch(sessionActions.addSession(caseId, protocol));
@@ -44,15 +45,14 @@ const InterviewSection = () => {
     setSelectedProtocol(protocolUID);
   };
 
-  if (Object.keys(installedProtocols).length === 0 && Object.keys(sessions).length === 0) {
-    return null;
-  }
-
   return (
     <Section className="start-screen-section interview-section">
+      { isNull(protocols) && (
+        <Spinner />
+      )}
       <AnimatePresence>
         {
-          Object.keys(installedProtocols).length > 0 && (
+          !isNull(protocols) && protocols.length > 0 && (
             <motion.div key="start-new" layout>
               <main className="interview-section__start-new">
                 <div className="content-area">
@@ -62,35 +62,31 @@ const InterviewSection = () => {
                     </header>
                     <ProtocolCard
                       onClickHandler={
-                        () => protocolCardClickHandler(lastActiveProtocol.protocolUID)
+                        () => protocolCardClickHandler(protocols[0].protocolUID)
                       }
                       attributes={{
-                        schemaVersion: lastActiveProtocol.schemaVersion,
-                        lastModified: lastActiveProtocol.lastModified,
-                        installationDate: lastActiveProtocol.installationDate,
-                        name: lastActiveProtocol.name,
-                        description: lastActiveProtocol.description,
+                        schemaVersion: protocols[0].schemaVersion,
+                        lastModified: protocols[0].lastModified,
+                        installationDate: protocols[0].installationDate,
+                        name: protocols[0].name,
+                        description: protocols[0].description,
                       }}
                     />
                   </div>
-                  {
-                    Object.keys(installedProtocols).length > 1 && (
-                      <div className="content-area__other">
-                        <StackButton
-                          label="Select protocol"
-                          cardColor="var(--color-platinum)"
-                          insetColor="var(--color-slate-blue--dark)"
-                          clickHandler={() => toggleUIOverlay('showStartInterviewPicker')}
-                        >
-                          <h4>
-                            {
-                              (Object.keys(installedProtocols).length - 1) > 1 ? `+${Object.keys(installedProtocols).length - 1} Other Protocols` : `+${Object.keys(installedProtocols).length - 1} Other Protocol`
-                            }
-                          </h4>
-                        </StackButton>
-                      </div>
-                    )
-                  }
+                  <div className="content-area__other">
+                    <StackButton
+                      label="Select protocol"
+                      cardColor="var(--color-platinum)"
+                      insetColor="var(--color-slate-blue--dark)"
+                      clickHandler={() => toggleUIOverlay('showStartInterviewPicker')}
+                    >
+                      <h4>
+                        {
+                          (Object.keys(protocols).length - 1) > 1 ? `+${Object.keys(protocols).length - 1} Other Protocols` : `+${Object.keys(protocols).length - 1} Other Protocol`
+                        }
+                      </h4>
+                    </StackButton>
+                  </div>
                 </div>
               </main>
               <StartInterviewPicker
@@ -105,7 +101,7 @@ const InterviewSection = () => {
             </motion.div>
           )
         }
-        { Object.keys(sessions).length > 0 && (
+        { !isNull(sessions) && Object.keys(sessions).length > 0 && (
           <motion.div key="resume-section" layout>
             <main className="interview-section__resume-section">
               <div className="content-area">
@@ -114,8 +110,7 @@ const InterviewSection = () => {
                     <h2>Resume Last Interview</h2>
                   </header>
                   <SessionCard
-                    sessionUUID={lastActiveSession.sessionUUID}
-                    attributes={lastActiveSession.attributes}
+                    {...sessions[0]}
                   />
                 </div>
                 { Object.keys(sessions).length > 1 && (

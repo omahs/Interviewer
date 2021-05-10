@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import reducer, { actionTypes } from '../session';
-import { actionTypes as installedProtocolsActionTypes } from '../installedProtocols';
+import { actionTypes as protocolsActionTypes } from '../protocols';
 
 const initialState = null;
 
@@ -25,7 +25,7 @@ describe('session reducer', () => {
   it('should handle DELETE_PROTOCOL', () => {
     const newState = reducer('a',
       {
-        type: installedProtocolsActionTypes.DELETE_PROTOCOL,
+        type: protocolsActionTypes.DELETE_PROTOCOL,
       });
 
     expect(newState).toEqual(initialState);

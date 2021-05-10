@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
+import { actionCreators as sessionsActions } from '../../../ducks/modules/session';
 import { entityPrimaryKeyProperty } from '../../../ducks/modules/network';
 
 const getEdgeInNetwork = (edges, pair, edgeType) => {
