@@ -4,8 +4,6 @@ import { connect, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import HeaderSection from './HeaderSection';
 import InterviewSection from './InterviewSection';
-import ImportSection from './ImportSection';
-import ServerSection from './ServerSection';
 import WhatsNewSection from './WhatsNewSection';
 import DataExportSection from './DataExportSection';
 import Navigation from './Navigation';
@@ -47,12 +45,10 @@ const StartScreen = ({
           initial="hide"
           key="start-screen"
         >
-          {/* <HeaderSection /> */}
-          {/* <WhatsNewSection /> */}
+          <HeaderSection />
+          <WhatsNewSection />
           <InterviewSection />
           <DataExportSection />
-          {/* <ImportSection /> */}
-          {/* <ServerSection /> */}
         </motion.div>
       </div>
     </>

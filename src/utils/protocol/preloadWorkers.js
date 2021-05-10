@@ -1,9 +1,4 @@
-import { readFile } from '../filesystem';
-import { isCordova } from '../Environment';
-import protocolPath from './protocolPath';
 import { urlForWorkerSource, supportedWorkers } from '../WorkerAgent';
-
-const path = require('path');
 
 /**
  * Builds source code for a Web Worker based on the protocol's
@@ -66,27 +61,7 @@ const compileWorker = (src, funcName) => {
  * By preloading any existing, we can bootstrap before protocol.json is parsed.
  */
 const preloadWorkers = (protocolUID) => {
-  return Promise.all(supportedWorkers.map((workerName) => {
-    let workerFile;
-
-    if (isCordova()) {
-      workerFile = `${protocolPath(protocolUID)}${workerName}.js`;
-    } else {
-      workerFile = path.join(protocolPath(protocolUID), `${workerName}.js`);
-    }
-
-    const promise = readFile(workerFile);
-
-    return promise
-      /**
-       * Load from blob so that script inherits CSP
-       */
-      .then(buf => new TextDecoder().decode(buf))
-      .then(str => compileWorker(str, workerName))
-      .then(source => new Blob([source], { type: 'text/plain' }))
-      .then(blob => urlForWorkerSource(blob))
-      .catch(() => null);
-  }));
+  return Promise.resolve();
 };
 
 export default preloadWorkers;

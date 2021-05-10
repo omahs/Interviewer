@@ -65,36 +65,34 @@ export default (state = initialState, action) => {
   }
 };
 
-export const loginThunk = (username, password) => (dispatch) =>
-  login(username, password).then(
-    (data) => {
-      dispatch({
-        type: LOGIN_SUCCESS,
-        payload: { user: data },
-      });
+export const loginThunk = (username, password) => (dispatch) => login(username, password).then(
+  (data) => {
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: { user: data },
+    });
 
-      return Promise.resolve();
-    },
-    (error) => {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
+    return Promise.resolve();
+  },
+  (error) => {
+    const message = (error.response
+        && error.response.data
+        && error.response.data.message)
+      || error.message
+      || error.toString();
 
-      dispatch({
-        type: LOGIN_FAIL,
-      });
+    dispatch({
+      type: LOGIN_FAIL,
+    });
 
-      dispatch({
-        type: SET_MESSAGE,
-        payload: message,
-      });
+    dispatch({
+      type: SET_MESSAGE,
+      payload: message,
+    });
 
-      return Promise.reject();
-    }
-  );
+    return Promise.reject();
+  },
+);
 
 const actionTypes = {
   REGISTER_SUCCESS,

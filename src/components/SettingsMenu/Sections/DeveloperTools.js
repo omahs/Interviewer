@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -25,7 +26,7 @@ const DeveloperTools = (props) => {
   const [sessionCount, setSessionCount] = useState(10);
   const [selectedProtocol, setSelectedProtocol] = useState('');
 
-  const { status, error, data: protocols } = useAPI('protocols');
+  const { data: protocols } = useAPI('protocols');
 
   return (
     <>

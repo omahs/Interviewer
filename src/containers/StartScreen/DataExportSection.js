@@ -1,30 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { get, difference, isNull } from 'lodash';
+import { isNull } from 'lodash';
 import { motion } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Button } from '@codaco/ui';
 import { SessionCard } from '@codaco/ui/lib/components/Cards';
-import { exportToFile, exportToServer } from '../../utils/exportProcess';
 import Section from './Section';
 import { actionCreators as sessionsActions } from '../../ducks/modules/session';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
-import useServerConnectionStatus from '../../hooks/useServerConnectionStatus';
 import { Switch } from '../../components';
 import NewFilterableListWrapper, { getFilteredList } from '../../components/NewFilterableListWrapper';
 import { asNetworkWithSessionVariables } from '../../utils/networkFormat';
 import formatDatestamp from '../../utils/formatDatestamp';
 import useAPI from '../../hooks/useApi';
 
-const oneBasedIndex = (i) => parseInt(i || 0, 10) + 1;
-
 const DataExportSection = () => {
-  const { status, error, data: sessions } = useAPI('user/sessions');
+  const { data: sessions } = useAPI('user/sessions');
   const [filterTerm, setFilterTerm] = useState(null);
   const [selectedSessions, setSelectedSessions] = useState([]);
-
-  const pairedServer = useSelector((state) => state.pairedServer);
-  const pairedServerConnection = useServerConnectionStatus(pairedServer);
-  const protocols = useSelector((state) => state.protocols);
 
   const dispatch = useDispatch();
   const deleteSession = (id) => dispatch(sessionsActions.removeSession(id));
@@ -99,60 +91,17 @@ const DataExportSection = () => {
   }, [filterTerm, selectedSessions]);
 
   const exportSessions = (toServer = false) => {
-    const exportFunction = toServer ? exportToServer : exportToFile;
+    // eslint-disable-next-line no-console
+    const exportFunction = toServer ? () => console.log('export to server') : () => console.log('export to file');
 
     const sessionsToExport = selectedSessions
-      .map((session) => {
-        const sessionProtocol = protocols[sessions[session].protocolUID];
-
-        return asNetworkWithSessionVariables(
-          session,
-          sessions[session],
-          sessionProtocol,
-        );
-      });
+      .map((session) => asNetworkWithSessionVariables(
+        session,
+        sessions[session],
+      ));
 
     exportFunction(sessionsToExport);
   };
-
-  if (sessions && sessions.length === 0) { return null; }
-
-  // const isSelectAll = (
-  //   selectedSessions.length > 0
-  //   && selectedSessions.length === filteredIds.length
-  //   && difference(selectedSessions, filteredIds).length === 0
-  // );
-
-  // const toggleSelectAll = () => {
-  //   if (!isSelectAll) {
-  //     setSelectedSessions([...filteredIds]);
-  //     return;
-  //   }
-
-  //   setSelectedSessions([]);
-  // };
-
-  // const unexportedSessions = filteredSessions
-  //   .reduce((acc, { exportedAt, sessionUUID }) => {
-  //     if (exportedAt) { return acc; }
-  //     return [...acc, sessionUUID];
-  //   }, []);
-
-  // const isUnexportedSelected = (
-  //   unexportedSessions.length > 0
-  //   && selectedSessions.length > 0
-  //   && selectedSessions.length === unexportedSessions.length
-  //   && difference(selectedSessions, unexportedSessions).length === 0
-  // );
-
-  // const toggleSelectUnexported = () => {
-  //   if (!isUnexportedSelected) {
-  //     setSelectedSessions(unexportedSessions);
-  //     return;
-  //   }
-
-  //   setSelectedSessions([]);
-  // };
 
   return (
     <Section className="start-screen-section data-export-section">
@@ -169,7 +118,7 @@ const DataExportSection = () => {
           ItemComponent={SessionCard}
           items={filteredSessions}
           propertyPath={null}
-          loading={isNull(sessions) && isNull(error)}
+          loading={isNull(sessions)}
           initialSortProperty="updatedAt"
           initialSortDirection="desc"
           onFilterChange={handleFilterChange}
@@ -221,7 +170,6 @@ const DataExportSection = () => {
       <motion.footer layout className="data-export-section__footer">
         <Button color="neon-coral--dark" onClick={handleDeleteSessions} disabled={selectedSessions.length === 0}>Delete Selected</Button>
         <div className="action-buttons">
-          { pairedServerConnection === 'ok' && (<Button onClick={() => exportSessions(true)} color="mustard" disabled={pairedServerConnection !== 'ok' || selectedSessions.length === 0}>Export Selected To Server</Button>)}
           <Button color="platinum" onClick={() => exportSessions(false)} disabled={selectedSessions.length === 0}>Export Selected To File</Button>
         </div>
       </motion.footer>

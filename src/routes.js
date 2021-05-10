@@ -12,7 +12,7 @@ import {
   LoadParamsRoute,
   ProtocolScreen,
 } from './containers';
-import { StartScreen } from './containers/StartScreen';
+import StartScreen from './containers/StartScreen/StartScreen';
 import Login from './components/Login';
 
 function mapStateToProps(state) {

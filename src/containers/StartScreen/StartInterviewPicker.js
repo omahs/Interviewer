@@ -1,4 +1,5 @@
 import React from 'react';
+import { isNull } from 'lodash';
 import { useDispatch } from 'react-redux';
 import { actionCreators as dialogActions } from '../../ducks/modules/dialogs';
 import { importProtocolFromURI } from '../../utils/protocol/importProtocol';
@@ -7,7 +8,6 @@ import { Overlay } from '../Overlay';
 import { entityAttributesProperty } from '../../ducks/modules/network';
 import { ProtocolCard } from '../../components/Cards';
 import useAPI from '../../hooks/useApi';
-import { isNull } from 'lodash';
 
 const StartInterviewPicker = ({
   show,
@@ -18,12 +18,12 @@ const StartInterviewPicker = ({
     onClose();
   };
 
-  const { status, error, data: protocolList } = useAPI('protocols');
+  const { error, data: protocolList } = useAPI('protocols');
 
   const dispatch = useDispatch();
   const openDialog = (dialog) => dispatch(dialogActions.openDialog(dialog));
 
-  const handleApiError = (error) => {
+  const handleApiError = () => {
     const errorObject = new Error(error);
     errorObject.friendlyMessage = 'There was an error fetching the protocol list from Server. Consult the error message below for further information. Contact the Network Canvas project team for help with this error.';
     openDialog({
@@ -32,14 +32,13 @@ const StartInterviewPicker = ({
       error: errorObject,
       confirmLabel: 'Okay',
       onConfirm: () => {
-        setLoading(false);
         onClose();
       },
     });
   };
 
   if (error) {
-    handleApiError(error);
+    handleApiError();
   }
 
   const formattedProtocols = protocolList && protocolList.map((protocol) => {

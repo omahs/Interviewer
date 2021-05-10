@@ -17,8 +17,8 @@ import useAPI from '../../hooks/useApi';
 const InterviewSection = () => {
   // const protocols = useSelector((state) => state.protocols);
 
-  const { status: protocolStatus, error: protocolError, data: protocols } = useAPI('protocols');
-  const { status, error, data: sessions } = useAPI('user/sessions');
+  const { data: protocols } = useAPI('protocols');
+  const { data: sessions } = useAPI('user/sessions');
 
   const dispatch = useDispatch();
   const addSession = (caseId, protocol) => dispatch(sessionActions.addSession(caseId, protocol));

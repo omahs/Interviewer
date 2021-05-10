@@ -31,7 +31,6 @@ const useAPI = (endpoint) => {
 
     const fetchData = async () => {
       const url = `${API_URL}${endpoint}`;
-      console.log('API: ', url);
       dispatch({ type: 'FETCHING' });
       if (cache.current[url]) {
         const data = cache.current[url];
@@ -57,6 +56,7 @@ const useAPI = (endpoint) => {
     };
   }, [endpoint]);
 
+  // eslint-disable-next-line no-console
   console.log('API: ', endpoint, state);
   return state;
 };

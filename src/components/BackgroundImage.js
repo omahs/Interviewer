@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import injectAssetUrl from '../behaviours/injectAssetUrl';
 
 const BackgroundImage = ({ style, url, ...props }) => (
   <div
@@ -20,4 +19,4 @@ BackgroundImage.defaultProps = {
 
 export { BackgroundImage };
 
-export default injectAssetUrl(BackgroundImage);
+export default BackgroundImage;

@@ -9,13 +9,11 @@ class LoadParamsRoute extends Component {
   // eslint-disable-next-line camelcase
   UNSAFE_componentWillMount() {
     const {
-      computedMatch,
       shouldReset,
       resetState,
       sessionId,
       updatePrompt,
     } = this.props;
-
 
     if (shouldReset) {
       resetState();

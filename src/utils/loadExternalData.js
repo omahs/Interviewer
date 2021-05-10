@@ -2,7 +2,6 @@
 import { get } from 'lodash';
 import environments from './environments';
 import inEnvironment from './Environment';
-import { readFile } from './filesystem';
 import getAssetUrl from './protocol/getAssetUrl';
 import CSVWorker from './csvDecoder.worker';
 
@@ -44,7 +43,7 @@ const fetchNetwork = inEnvironment(
     }
 
     if (environment === environments.CORDOVA) {
-      return (url, fileType) => readFile(url)
+      return (url, fileType) => fetch(url)
         .then((response) => {
           if (fileType === 'csv') {
             return convertCSVToJsonWithWorker(response.toString('utf8'));

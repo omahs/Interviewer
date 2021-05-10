@@ -1,6 +1,4 @@
-import { has, omit, reduce } from 'lodash';
-import uuid from 'uuid/v4';
-import { actionCreators as SessionWorkerActions } from './sessionWorkers';
+import { reduce } from 'lodash';
 import { actionTypes as protocolsActionTypes } from './protocols';
 import networkReducer, { actionTypes as networkActionTypes, actionCreators as networkActions, entityPrimaryKeyProperty } from './network';
 
@@ -19,8 +17,6 @@ const withTimestamp = (session) => ({
   ...session,
   updatedAt: Date.now(),
 });
-
-const sessionExists = (sessionId, sessions) => has(sessions, sessionId);
 
 const getReducer = (network) => (state = initialState, action = {}) => {
   switch (action.type) {

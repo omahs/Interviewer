@@ -1,23 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ready as secureCommsReady } from 'secure-comms-api/cipher';
 import { Provider } from 'react-redux';
-import { ConnectedRouter, push } from 'connected-react-router';
-import initFileOpener from './utils/initFileOpener';
-import initMenuActions from './utils/initMenuActions';
+import { ConnectedRouter } from 'connected-react-router';
 import { history, store, persistor as storePersistor } from './ducks/store';
 import { actionCreators as deviceActions } from './ducks/modules/deviceSettings';
 import App from './containers/App';
-import { isCordova, isElectron, getEnv } from './utils/Environment';
+import { getEnv } from './utils/Environment';
 import AppRouter from './routes';
-import remote from './utils/remote';
 
 // This prevents user from being able to drop a file anywhere on the app
 document.addEventListener('drop', (e) => {
   e.preventDefault();
   e.stopPropagation();
 });
+// eslint-disable-next-line @codaco/spellcheck/spell-checker
 document.addEventListener('dragover', (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -54,33 +51,9 @@ const startApp = () => {
   );
 };
 
-if (isElectron()) {
-  const { webFrame, ipcRenderer } = window.require('electron'); // eslint-disable-line global-require
-  webFrame.setVisualZoomLevelLimits(1, 1); // Prevents pinch-to-zoom
-  remote.init();
-
-  // Listen for native menu UI events
-  initMenuActions();
-
-  ipcRenderer.on('RESET_STATE', () => {
-    store.dispatch(push('/reset'));
-  });
-}
-
-secureCommsReady.then(() => {
-  if (isCordova()) {
-    document.addEventListener('deviceready', startApp, false);
-  } else if (document.readyState === 'complete') {
+document.onreadystatechange = () => {
+  if (document.readyState === 'complete') {
     startApp();
     // Listen for file open events.
-    initFileOpener();
-  } else {
-    document.onreadystatechange = () => {
-      if (document.readyState === 'complete') {
-        startApp();
-        // Listen for file open events.
-        initFileOpener();
-      }
-    };
   }
-});
+};

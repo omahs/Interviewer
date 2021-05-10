@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { NewFilterableListWrapper, NodeBin } from '../../components';
-import { actionCreators as installedProtocolActions } from '../../ducks/modules/protocols';
+import { NewFilterableListWrapper } from '../../components';
 import { Overlay } from '../Overlay';
 import { DragSource } from '../../behaviours/DragAndDrop';
 import { ProtocolCard } from '../../components/Cards';
@@ -12,7 +11,6 @@ const ManageProtocolsOverlay = ({
   show,
   onClose,
   protocols,
-  deleteProtocol,
 }) => {
   const formattedProtocols = [...Object.keys(protocols)].map((protocolUID) => {
     const {
@@ -69,11 +67,6 @@ const ManageProtocolsOverlay = ({
           },
         ]}
       />
-      <NodeBin
-        accepts={() => true}
-        dropHandler={({ protocolUID }) => deleteProtocol(protocolUID)}
-        id="PROTOCOL_BIN"
-      />
     </Overlay>
   );
 };
@@ -89,7 +82,6 @@ function mapStateToProps(state) {
 }
 
 const mapDispatchToProps = {
-  deleteProtocol: installedProtocolActions.deleteProtocol,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageProtocolsOverlay);

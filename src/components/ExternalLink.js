@@ -1,16 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isElectron } from '../utils/Environment';
 
 export const openExternalLink = (href) => {
-  if (isElectron()) {
-    // eslint-disable-next-line global-require
-    const { shell } = require('electron');
-    shell.openExternal(href);
-    return false;
-  }
-
-  window.cordova.InAppBrowser.open(href, '_system', 'location=yes');
+  window.open(href, '_blank', 'location=yes');
   return false;
 };
 

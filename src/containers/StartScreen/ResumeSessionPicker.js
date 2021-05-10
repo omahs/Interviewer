@@ -39,6 +39,7 @@ const ResumeSessionPicker = ({
       exportedAt: formatDatestamp(session.exportedAt),
       protocolName: protocol.name,
       progress,
+      // eslint-disable-next-line no-underscore-dangle
       onClickHandler: () => handleSessionCardClick(session._id),
     };
   });
