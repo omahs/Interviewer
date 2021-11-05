@@ -8,6 +8,7 @@ import {
 
 let simulation;
 let startLinks;
+let linkForce;
 
 console.log('new force simulation worker!');
 
@@ -24,9 +25,11 @@ onmessage = function ({ data }) {
       startLinks = links;
 
       console.debug('worker:initialize');
+      linkForce = forceLink(links).distance(10).strength(1);
+
       simulation = forceSimulation(nodes)
+        .force('link', linkForce)
         .force('charge', forceManyBody())
-        .force('link', forceLink(links).distance(10).strength(1))
         .force('x', forceX())
         .force('y', forceY());
 
@@ -61,11 +64,31 @@ onmessage = function ({ data }) {
         },
       } = data;
 
+      startLinks = links;
+
+// .force('link', null)
+// .force('link', forceLink(startLinks).distance(10).strength(1))
+// .force('charge', forceManyBody())
+// .force('x', forceX())
+// .force('y', forceY())
+
       simulation
-        .nodes(nodes)
+        .nodes(nodes);
+
+      // simulation
+      //   .force('link').links(links);
+
+      simulation
         .alpha(1)
-        .force('link', forceLink(links).distance(10).strength(1))
         .restart();
+
+      // simulation.stop();
+      // simulation = forceSimulation(nodes)
+      //   .force('charge', forceManyBody())
+      //   .force('link', forceLink(links).distance(10).strength(1))
+      //   .force('x', forceX())
+      //   .force('y', forceY())
+      //   .restart();
       break;
     }
     case 'update_node': {
@@ -81,10 +104,23 @@ onmessage = function ({ data }) {
 
       console.log('update node');
 
+      // simulation.stop();
+      // simulation = forceSimulation(nodes)
+      //   .force('charge', forceManyBody())
+      //   .force('link', null)
+      //   .force('link', forceLink(startLinks).distance(10).strength(1))
+      //   .force('x', forceX())
+      //   .force('y', forceY())
+      //   .restart();
+
       simulation
-        .nodes(nodes)
-        .alpha(1)
+        // .force('link', null)
+        .nodes(nodes);
+      // simulation
         // .force('link', forceLink(startLinks).distance(10).strength(1))
+        // .force('link').links(startLinks);
+      simulation
+      //   .alpha(1)
         .restart();
       break;
     }

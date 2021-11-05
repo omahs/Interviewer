@@ -55,8 +55,8 @@ const NodeLayout = React.forwardRef(({
 
     // debugger;
 
-    // timer.current = requestAnimationFrame(() => update.current());
-    timer.current = setTimeout(() => update.current(), 100);
+    timer.current = requestAnimationFrame(() => update.current());
+    // timer.current = setTimeout(() => update.current(), 100);
   });
 
   useEffect(() => {
@@ -80,8 +80,8 @@ const NodeLayout = React.forwardRef(({
   }, []);
 
   useEffect(() => {
-    // if (!ref.current) { return () => cancelAnimationFrame(timer.current); }
-    if (!ref.current) { return () => clearTimeout(timer.current); }
+    if (!ref.current) { return () => cancelAnimationFrame(timer.current); }
+    // if (!ref.current) { return () => clearTimeout(timer.current); }
 
     // debugger;
 
@@ -108,8 +108,8 @@ const NodeLayout = React.forwardRef(({
     window.addEventListener('mousemove', handleDragMove);
     window.addEventListener('mouseup', handleDragEnd);
 
-    // timer.current = requestAnimationFrame(() => update.current());
-    timer.current = setTimeout(() => update.current(), 100);
+    timer.current = requestAnimationFrame(() => update.current());
+    // timer.current = setTimeout(() => update.current(), 100);
 
     return () => {
       // debugger;
@@ -118,8 +118,8 @@ const NodeLayout = React.forwardRef(({
       window.removeEventListener('mousemove', handleDragMove);
       window.removeEventListener('mouseup', handleDragEnd);
 
-      // cancelAnimationFrame(timer.current);
-      clearTimeout(timer.current);
+      cancelAnimationFrame(timer.current);
+      // clearTimeout(timer.current);
     };
   }, [nodes]);
 

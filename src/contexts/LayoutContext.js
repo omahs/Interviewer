@@ -55,9 +55,13 @@ export const LayoutProvider = ({
     const position = forceSimulation.current.nodes[id];
 
     const newPosition = {
-      y: position.y + (delta.dy / viewportState.current.zoom),
-      x: position.x + (delta.dx / viewportState.current.zoom),
+      x: position.x,
+      y: position.y,
+      vx: (delta.dx / viewportState.current.zoom),
+      vy: (delta.dy / viewportState.current.zoom),
     };
+
+    console.log([viewportState.current.zoom, delta, position, newPosition]);
 
     updateNode(newPosition, id);
   }, [updateNode]);
@@ -121,9 +125,13 @@ export const LayoutProvider = ({
       {},
     );
 
+    // const simulationLinks = [];
+
     const simulationLinks = edges.map(
       ({ from, to }) => ({ source: nodeIdMap[from], target: nodeIdMap[to] }),
     );
+
+    debugger;
 
     start({ nodes: simulationNodes, links: simulationLinks });
   }, []);
@@ -147,6 +155,8 @@ export const LayoutProvider = ({
       }),
       {},
     );
+
+    // const simulationLinks = [];
 
     const simulationLinks = edges.map(
       ({ from, to }) => ({ source: nodeIdMap[from], target: nodeIdMap[to] }),
