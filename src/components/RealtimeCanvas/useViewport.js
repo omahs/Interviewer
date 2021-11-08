@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react';
+import Hammer from 'hammerjs';
 import getAbsoluteBoundingRect from '../../utils/getAbsoluteBoundingRect';
 
 // -1000 - 1000 space, 0,0 center
@@ -11,11 +12,6 @@ const useViewport = () => {
     screen: { width: 0, height: 0 },
   });
 
-  const initializeViewport = useCallback((el) => {
-    state.current.screen = getAbsoluteBoundingRect(el);
-    console.log({ screen: state.current.screen });
-  }, []);
-
   const zoomViewport = useCallback((factor = 1.5) => {
     state.current.zoom *= factor;
   }, []);
@@ -26,6 +22,37 @@ const useViewport = () => {
       y: state.current.center.y + (y / state.current.zoom),
     };
   }, []);
+
+  const initializeViewport = useCallback((el) => {
+    state.current.screen = getAbsoluteBoundingRect(el);
+    // TODO: watch for resize??
+    // Bind drag events?
+    // el.addEventListener('mousemove', () => console.log('view port'));
+
+    const mc = new Hammer.Manager(el);
+    const pinch = new Hammer.Pinch();
+    const pan = new Hammer.Pan();
+
+    // add to the Manager
+    mc.add([pinch, pan]);
+
+    mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+    mc.on('panleft panright panup pandown pinch', (e) => {
+      switch (e.type) {
+        case 'panleft':
+        case 'panright':
+        case 'pandown':
+        case 'panup':
+          console.log('pan', { e, dx: e.velocityX / state.current.zoom, dy: e.velocityY / state.current.zoom });
+          moveViewport(e.velocityX / (100 * state.current.zoom), e.velocityY / (100 * state.current.zoom));
+          return;
+        default:
+          console.log('viewport hammer', e.type);
+      }
+    });
+    console.log({ screen: state.current.screen });
+  }, [moveViewport, zoomViewport]);
 
   // Convert relative coordinates (0-1) into pixel coordinates for d3-force
   // -1000 - -1000 space, 0,0 center
