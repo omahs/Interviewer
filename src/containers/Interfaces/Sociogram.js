@@ -14,7 +14,8 @@ import PromptObstacle from '../Canvas/PromptObstacle';
 import ButtonObstacle from '../Canvas/ButtonObstacle';
 import { actionCreators as resetActions } from '../../ducks/modules/reset';
 import { makeGetDisplayEdges, makeGetNextUnplacedNode, makeGetPlacedNodes } from '../../selectors/canvas';
-import useAutoLayout from './useAutoLayout';
+// import useAutoLayout from './useAutoLayout';
+import useForceSimulation from '../../hooks/useForceSimulation';
 
 const withResetInterfaceHandler = withHandlers({
   handleResetInterface: ({
@@ -84,40 +85,117 @@ const Sociogram = (props) => {
   const skewedTowardCenter = get(stage, 'background.skewedTowardCenter');
 
   // Automatic Layout
-  const [
-    positionedNodes,
-    positionedEdges,
-    scale,
-    isLayoutRunning,
-    startLayout,
-    stopLayout,
-    updateLayout,
-  ] = useAutoLayout(
-    { layout: layoutVariable },
-  );
+  // const [
+  //   positionedNodes,
+  //   positionedEdges,
+  //   scale,
+  //   isLayoutRunning,
+  //   startLayout,
+  //   stopLayout,
+  //   updateLayout,
+  // ] = useAutoLayout(
+  //   { layout: layoutVariable },
+  // );
 
-  const displayNodes = useAnimatedState([], () => positionedNodes.current);
-  const displayEdges = useAnimatedState([], () => positionedEdges.current);
+  const {
+    viewport,
+    state,
+    isRunning,
+    initialize,
+    start,
+    stop,
+    moveNode,
+    releaseNode,
+    updateNetwork,
+  } = useForceSimulation();
+
+  const displayNodes = useAnimatedState([], () => {
+    if (!state.current) { return nodes; }
+    return nodes.map((node, index) => {
+      return {
+        ...node,
+        attributes: {
+          ...node.attributes,
+          [layoutVariable]: state.current.nodes[index],
+        },
+      };
+    });
+  });
+  const displayEdges = useAnimatedState([], () => {
+    return edges;
+    if (!state.current) { return edges; }
+    return state.current.links;
+  });
+
+  // useEffect(() => {
+  //   if (nodes.length < 1) { return () => {}; }
+
+  //   start({
+  //     nodes,
+  //     links,
+  //   });
+
+  //   return () => stop();
+  // }, [nodes.length]);
 
   useEffect(() => {
-    if (nodes.length < 1) { return () => {}; }
+    const simulationNodes = nodes.map(
+      ({ attributes }) => attributes[layoutVariable],
+    );
 
-    startLayout({
-      nodes,
-      edges,
-    });
+    const nodeIdMap = nodes.reduce(
+      (memo, { _uid }, index) => ({
+        ...memo,
+        [_uid]: index,
+      }),
+      {},
+    );
 
-    return () => stopLayout();
-  }, [nodes.length]);
+    const simulationLinks = edges.map(
+      ({ from, to }) => ({ source: nodeIdMap[from], target: nodeIdMap[to] }),
+    );
+
+    initialize({ nodes: simulationNodes, links: simulationLinks });
+  }, []);
+
+  useEffect(() => {
+    const simulationNodes = nodes.map(
+      ({ attributes }) => attributes[layoutVariable],
+    );
+
+    console.debug('update sim nodes');
+
+    updateNetwork({ nodes: simulationNodes });
+  }, [nodes, layoutVariable]);
+
+  useEffect(() => {
+    const nodeIdMap = nodes.reduce(
+      (memo, { _uid }, index) => ({
+        ...memo,
+        [_uid]: index,
+      }),
+      {},
+    );
+
+    const simulationLinks = edges.map(
+      ({ from, to }) => ({ source: nodeIdMap[from], target: nodeIdMap[to] }),
+    );
+
+    console.debug('update sim links');
+
+    updateNetwork({ links: simulationLinks });
+  }, [nodes, edges]);
 
   const callback = ({
     type,
     data,
   }) => {
-    updateLayout({
-      nodes,
-      edges,
-    });
+    // updateLayout({
+    //   nodes,
+    //   edges,
+    // });
+
+    console.log({ type, data });
 
     switch (type) {
       case 'node':

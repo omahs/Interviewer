@@ -2,6 +2,8 @@ import {
   forceSimulation,
   forceX,
   forceY,
+  forceCollide,
+  forceCenter,
   forceManyBody,
   forceLink,
 } from 'd3-force';
@@ -19,12 +21,21 @@ onmessage = function ({ data }) {
           links,
         },
       } = data;
+
       console.debug('worker:initialize');
       simulation = forceSimulation(nodes)
+        // .alphaTarget(0.3) // stay hot
+        .velocityDecay(0.1) // low friction
         .force('charge', forceManyBody())
-        .force('link', forceLink(links).distance(10).strength(1))
-        .force('x', forceX())
-        .force('y', forceY());
+        // .force('collide', forceCollide().radius(50).iterations(2))
+        .force('links', forceLink(links))
+        .force('x', forceX()) // 0 as center
+        .force('y', forceY()); // 0 as center
+
+      // do not auto run
+      simulation
+        .alpha(0)
+        .stop();
 
       simulation.on('tick', () => {
         console.debug('worker:tick');
@@ -45,7 +56,16 @@ onmessage = function ({ data }) {
     }
     case 'stop': {
       if (!simulation) { return; }
+      console.debug('worker:stop');
       simulation.stop();
+      break;
+    }
+    case 'start': {
+      if (!simulation) { return; }
+      console.debug('worker:start');
+      simulation
+        .alpha(1)
+        .restart();
       break;
     }
     case 'update': {
@@ -58,9 +78,38 @@ onmessage = function ({ data }) {
       } = data;
 
       simulation
-        .nodes(nodes)
-        .alpha(1)
-        .force('link', forceLink(links).distance(10).strength(1));
+        .nodes(nodes);
+
+      simulation
+        .force('links')
+        .links(links);
+
+      // TODO: don't run this on "first run"?
+      // simulation
+      //   .alpha(0.3)
+      //   .restart();
+      break;
+    }
+    case 'update_node': {
+      if (!simulation) { return; }
+
+      const nodes = simulation.nodes().map((node, index) => {
+        if (index !== data.index) { return node; }
+
+        const newNode = {
+          ...node,
+          ...data.node,
+        };
+
+        return newNode;
+      });
+
+      simulation
+        .nodes(nodes);
+
+      simulation
+        .alpha(0.3)
+        .restart();
       break;
     }
     default:
