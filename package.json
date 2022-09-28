@@ -180,6 +180,7 @@
   "dependencies": {
     "@babel/runtime": "7.10.1",
     "archiver": "^4.0.1",
+    "cordova-plugin-ionic-keyboard": "2.2.0",
     "d3-force": "~3.0.0",
     "electron-devtools-installer": "^3.0.0",
     "zeroconf": "^0.1.4"
@@ -300,7 +301,6 @@
       "cordova-plugin-file-transfer": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-keyboard": {},
       "cordova-plugin-zeroconf": {},
       "cordova-plugin-x-socialsharing": {
         "ANDROID_SUPPORT_V4_VERSION": "24.1.1+",
@@ -314,7 +314,9 @@
       "cordova-plugin-network-canvas-client": {},
       "cordova-sqlite-storage": {},
       "cordova-plugin-file": {},
-      "cordova-plugin-app-version": {}
+      "cordova-plugin-app-version": {},
+      "cordova-plugin-fullscreen": {},
+      "cordova-plugin-ionic-keyboard": {}
     }
   }
 }
