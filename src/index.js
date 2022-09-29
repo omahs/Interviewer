@@ -54,6 +54,7 @@ const startApp = () => {
 
         window.addEventListener('keyboardDidHide', () => {
           // Describe your logic which will be run each time keyboard is closed.
+          // eslint-disable-next-line no-console
           console.log('keyboard hidden');
           window.AndroidFullScreen.immersiveMode();
         });
