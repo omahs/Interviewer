@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
 import { get } from 'lodash';
@@ -12,87 +12,64 @@ import withExternalData from './withExternalData';
 import { entityPrimaryKeyProperty } from '../ducks/modules/network';
 import customFilter from '../utils/networkQuery/filter';
 
-class NodePanel extends PureComponent {
-  componentDidMount() {
-    this.sendNodesUpdate();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { nodes } = this.props;
-    if (prevProps.nodes.length !== nodes.length) {
-      this.sendNodesUpdate();
-    }
-  }
-
+const NodePanel = (props) => {
+  const {
+    title,
+    highlight,
+    dataSource,
+    id,
+    listId,
+    minimize,
+    onDrop,
+    nodes,
+    ...nodeListProps
+  } = props;
   // Because the index is used to determine whether node originated in this list
   // we need to supply an index for the unfiltered list for externalData.
-  fullNodeIndex = () => {
+  const fullNodeIndex = () => {
     const {
-      dataSource,
       externalData,
-      nodes,
-    } = this.props;
+    } = props;
     const externalNodes = get(externalData, 'nodes', []);
     const allNodes = (dataSource === 'existing' ? nodes : externalNodes);
 
     return new Set(allNodes.map((node) => node[entityPrimaryKeyProperty]));
-  }
-
+  };
   // This can use the displayed nodes for a count as it is used to see whether the panel
   // is 'empty'
-  nodeDisplayCount = () => {
-    const { nodes } = this.props;
-    return nodes.length;
-  };
-
-  sendNodesUpdate = () => {
-    const { onUpdate } = this.props;
+  const nodeDisplayCount = () => nodes.length;
+  const sendNodesUpdate = () => {
+    const { onUpdate } = props;
     onUpdate(
-      this.nodeDisplayCount(),
-      this.fullNodeIndex(),
+      nodeDisplayCount(),
+      fullNodeIndex(),
     );
-  }
-
-  handleDrop = (item) => {
-    const {
-      onDrop,
-      dataSource,
-    } = this.props;
-
-    return onDrop(item, dataSource);
   };
 
-  render = () => {
-    const {
-      title,
-      highlight,
-      dataSource,
-      id,
-      listId,
-      minimize,
-      onDrop,
-      nodes,
-      ...nodeListProps
-    } = this.props;
+  // effect hook for calling sendNodesUpdate, replaces componentDidMount and componentDidUpdate
+  useEffect(() => {
+    sendNodesUpdate();
+  }, [nodes.length]);
 
-    return (
-      <Panel
-        title={title}
-        highlight={highlight}
-        minimize={minimize}
-      >
-        <NodeList
-          {...nodeListProps}
-          items={nodes}
-          listId={listId}
-          id={id}
-          itemType="NEW_NODE"
-          onDrop={this.handleDrop}
-        />
-      </Panel>
-    );
-  }
-}
+  const handleDrop = (item) => onDrop(item, dataSource);
+
+  return (
+    <Panel
+      title={title}
+      highlight={highlight}
+      minimize={minimize}
+    >
+      <NodeList
+        {...nodeListProps}
+        items={nodes}
+        listId={listId}
+        id={id}
+        itemType="NEW_NODE"
+        onDrop={handleDrop}
+      />
+    </Panel>
+  );
+};
 
 const getNodeId = (node) => node[entityPrimaryKeyProperty];
 
