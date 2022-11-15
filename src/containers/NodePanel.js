@@ -9,6 +9,7 @@ import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
 import { Panel, NodeList } from '../components';
 import { entityPrimaryKeyProperty } from '../ducks/modules/network';
 import customFilter from '../utils/networkQuery/filter';
+import useExternalData from '../hooks/useExternalData';
 
 const NodePanel = (props) => {
   const {
@@ -39,15 +40,17 @@ const NodePanel = (props) => {
       const nodes = nodesForOtherPrompts.filter(notInSet(new Set(nodeIds.prompt)));
       return nodes;
     }
+    // with external data source
+    const { stage } = props;
+    const [externalNodes, status] = useExternalData(dataSource, stage.subject);
+    console.log(externalNodes, status);
 
-    if (!externalData) { return []; }
+    let nodes = [];
+    if (externalNodes) {
+      nodes = externalNodes;
+      return nodes;
+    }
 
-    const nodes = get(
-      externalData,
-      'nodes',
-      [],
-    )
-      .filter(notInSet(new Set([...nodeIds.prompt, ...nodeIds.other])));
     return nodes;
   };
 
