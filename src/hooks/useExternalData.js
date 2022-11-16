@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import objectHash from 'object-hash';
 import { mapValues, mapKeys } from 'lodash';
+import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import loadExternalData from '../utils/loadExternalData';
 import getParentKeyByNameValue from '../utils/getParentKeyByNameValue';
 import { getVariableTypeReplacements } from '../containers/withExternalData';
-import { entityAttributesProperty, entityPrimaryKeyProperty } from '../ducks/modules/network';
 
 const getSessionMeta = (state) => {
   const session = state.sessions[state.activeSessionId];
@@ -69,7 +69,9 @@ const useExternalData = (dataSource, subject) => {
   const updateStatus = (newStatus) => setStatus((s) => ({ ...s, ...newStatus }));
 
   useEffect(() => {
-    if (!dataSource) { return; }
+    // If there is no data source, or data source is the existing network (used
+    // by the name generator side panels), then we don't need to load any data.
+    if (!dataSource || dataSource === 'existing') { return; }
     // This is where we could set the loading state for URL assets
     setExternalData(null);
     updateStatus({ isLoading: true, error: null });

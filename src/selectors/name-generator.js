@@ -16,7 +16,6 @@ These selectors assume the following props:
 const defaultPanelConfiguration = {
   title: '',
   dataSource: 'existing',
-  filter: (network) => network,
 };
 
 // MemoedSelectors

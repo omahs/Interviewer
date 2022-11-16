@@ -2,15 +2,15 @@ import React, { PureComponent } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { makeGetAdditionalAttributes } from '../selectors/interface';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
-import { entityPrimaryKeyProperty } from '../ducks/modules/network';
 import { Panels } from '../components';
 import { makeGetPanelConfiguration } from '../selectors/name-generator';
 import NodePanel from './NodePanel';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
+import { get } from '../utils/lodash-replacements';
 
 /**
   * Configures and renders `NodePanels` according to the protocol config
@@ -68,6 +68,12 @@ class NodePanels extends PureComponent {
     return count === 0;
   };
 
+  isPanelLoading = (index) => {
+    const { panelIndexes } = this.state;
+    const isLoading = get(panelIndexes, [index, 'isLoading']);
+    return isLoading;
+  };
+
   isPanelCompatible = (index) => {
     const {
       panels,
@@ -100,7 +106,9 @@ class NodePanels extends PureComponent {
     const { isDragging } = this.props;
     const isCompatible = this.isPanelCompatible(index);
     const isNotEmpty = !this.isPanelEmpty(index);
-    return isNotEmpty || (isDragging && isCompatible);
+    const isLoading = this.isPanelLoading(index);
+
+    return isLoading || isNotEmpty || (isDragging && isCompatible);
   };
 
   isAnyPanelOpen = () => {
@@ -108,10 +116,10 @@ class NodePanels extends PureComponent {
     return panels.some((panel, index) => this.isPanelOpen(index));
   };
 
-  handlePanelUpdate = (index, displayCount, nodeIndex) => {
+  handlePanelUpdate = (index) => (nodeCount, nodeIndex, isLoading) => {
     this.setState((state) => {
       const panelIndexes = [...state.panelIndexes];
-      panelIndexes[index] = { count: displayCount, index: nodeIndex };
+      panelIndexes[index] = { count: nodeCount, index: nodeIndex, isLoading };
 
       return {
         panelIndexes,
@@ -127,7 +135,6 @@ class NodePanels extends PureComponent {
     } = this.props;
 
     const {
-      highlight,
       dataSource,
       filter,
       ...nodeListProps
@@ -143,14 +150,12 @@ class NodePanels extends PureComponent {
         dataSource={dataSource}
         filter={filter}
         accepts={() => this.isPanelCompatible(index)}
-        externalDataSource={dataSource !== 'existing' && dataSource}
-        highlight={this.getHighlight(index)}
         minimize={!this.isPanelOpen(index)}
         id={`PANEL_NODE_LIST_${index}`}
         listId={`PANEL_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
         itemType="NEW_NODE"
         onDrop={this.handleDrop}
-        onUpdate={(nodeCount, nodeIndex) => this.handlePanelUpdate(index, nodeCount, nodeIndex)}
+        onUpdate={this.handlePanelUpdate(index)}
       />
     );
   }

@@ -1,5 +1,11 @@
-import React, { useEffect } from 'react';
-import { get } from 'lodash';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from 'react';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import { useSelector } from 'react-redux';
 import {
   makeNetworkNodesForPrompt,
   makeNetworkNodesForOtherPrompts,
@@ -7,106 +13,115 @@ import {
 import usePropSelector from './Interfaces/NameGeneratorRoster/usePropSelector';
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
 import { Panel, NodeList } from '../components';
-import { entityPrimaryKeyProperty } from '../ducks/modules/network';
-import customFilter from '../utils/networkQuery/filter';
 import useExternalData from '../hooks/useExternalData';
+import customFilter from '../utils/networkQuery/filter';
+
+// Small utility that returns the entityPrimaryKeyProperty of an entity
+const getNodeId = (node) => node[entityPrimaryKeyProperty];
+
+// Test if a given node is in a given Set of nodes
+const notInSet = (set) => (node) => !set.has(node[entityPrimaryKeyProperty]);
 
 const NodePanel = (props) => {
   const {
-    title,
-    highlight,
-    dataSource,
     id,
     listId,
-    minimize,
+    dataSource,
     onDrop,
-    externalData,
+    onUpdate,
     filter,
-    ...nodeListProps
+    title,
+    minimize,
+    stage,
+    disableDragNew,
   } = props;
 
-  const getNodes = () => {
-    const getNodeId = (node) => node[entityPrimaryKeyProperty];
+  const {
+    subject,
+    id: stageId,
+  } = stage;
 
-    const nodesForPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
-    const nodesForOtherPrompts = usePropSelector(makeNetworkNodesForOtherPrompts, props, true);
-    const nodeIds = {
-      prompt: nodesForPrompt.map(getNodeId),
-      other: nodesForOtherPrompts.map(getNodeId),
-    };
-    const notInSet = (set) => (node) => !set.has(node[entityPrimaryKeyProperty]);
+  const [panelNodes, setPanelNodes] = useState([]);
+  const [externalNodes, status] = useExternalData(dataSource, subject);
 
-    if (dataSource === 'existing') {
-      const nodes = nodesForOtherPrompts.filter(notInSet(new Set(nodeIds.prompt)));
-      return nodes;
-    }
-    // with external data source
-    const { stage } = props;
-    const [externalNodes, status] = useExternalData(dataSource, stage.subject);
-    console.log(externalNodes, status);
+  const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
+  const nodesForOtherPrompts = usePropSelector(makeNetworkNodesForOtherPrompts, props, true);
+  const sourceNodes = useMemo(
+    () => (dataSource === 'existing' ? nodesForOtherPrompts : externalNodes),
+    [dataSource, nodesForOtherPrompts, externalNodes],
+  );
+  const edges = useSelector(getNetworkEdges);
+  const ego = useSelector(getNetworkEgo);
 
-    let nodes = [];
-    if (externalNodes) {
-      nodes = externalNodes;
-      return nodes;
-    }
+  const nodeIds = useMemo(() => ({
+    prompt: nodesForCurrentPrompt.map(getNodeId),
+    other: nodesForOtherPrompts.map(getNodeId),
+  }), [nodesForCurrentPrompt, nodesForOtherPrompts]);
 
-    return nodes;
-  };
-
-  const nodes = getNodes(props);
-
-  const nodeFilter = filter;
-  if (nodeFilter && typeof nodeFilter !== 'function') {
-    const filterFunction = customFilter(nodeFilter);
-    return filterFunction({
-      nodes,
-      edges: usePropSelector(getNetworkEdges, props, true),
-      ego: usePropSelector(getNetworkEgo, props, true),
-    });
-  }
-
-  // Because the index is used to determine whether node originated in this list
-  // we need to supply an index for the unfiltered list for externalData.
-  const fullNodeIndex = () => {
-    const externalNodes = get(externalData, 'nodes', []);
-    const allNodes = (dataSource === 'existing' ? nodes : externalNodes);
-    return new Set(allNodes.map((node) => node[entityPrimaryKeyProperty]));
-  };
-  // This can use the displayed nodes for a count as it is used to see whether the panel
-  // is 'empty'
-  const nodeDisplayCount = () => nodes.length;
-  const sendNodesUpdate = () => {
-    const { onUpdate } = props;
-    onUpdate(
-      nodeDisplayCount(),
-      fullNodeIndex(),
-    );
-  };
-
-  // effect hook for calling sendNodesUpdate, replaces componentDidMount and componentDidUpdate
   useEffect(() => {
-    sendNodesUpdate();
-  }, [nodes.length]);
+    // If there are no source nodes, return an empty array
+    if (!sourceNodes) {
+      setPanelNodes([]);
+      return;
+    }
 
-  const handleDrop = (item) => onDrop(item, dataSource);
+    // Filter potential nodes based on the panel's filter property
+    let filteredNodes;
+
+    if (!filter) {
+      filteredNodes = sourceNodes;
+    } else {
+      const result = customFilter(filter)({ nodes: sourceNodes, edges, ego });
+      filteredNodes = result.nodes;
+    }
+
+    // Set panelNodes based on the dataSource
+    if (dataSource === 'existing') {
+      setPanelNodes(filteredNodes.filter(notInSet(new Set(nodeIds.prompt))));
+      return;
+    }
+
+    // We haven't yet recieved external data (must be loading)
+    if (!externalNodes) {
+      setPanelNodes([]);
+      return;
+    }
+
+    // We have external data
+    setPanelNodes(filteredNodes.filter(notInSet(new Set([...nodeIds.prompt, ...nodeIds.other]))));
+  }, [nodeIds, sourceNodes]);
+
+  useEffect(() => {
+    const { isLoading } = status;
+    const panelNodeIds = new Set(panelNodes.map(getNodeId));
+
+    onUpdate(panelNodes.length, panelNodeIds, isLoading);
+  }, [panelNodes, status]);
+
+  const handleDrop = useCallback((item) => onDrop(item, dataSource), [onDrop, dataSource]);
 
   return (
     <Panel
       title={title}
-      highlight={highlight}
       minimize={minimize}
     >
-      <NodeList
-        {...nodeListProps}
-        items={nodes}
-        listId={listId}
-        id={id}
-        itemType="NEW_NODE"
-        onDrop={handleDrop}
-      />
+      {status.isLoading ? ( // Replace with the loading state of NodeList when that is updated
+        <h4>Loading</h4>
+      ) : (
+        <NodeList
+          items={panelNodes}
+          listId={listId}
+          id={id}
+          stageId={stageId}
+          itemType="NEW_NODE"
+          onDrop={handleDrop}
+          disableDragNew={disableDragNew}
+        />
+      )}
     </Panel>
   );
 };
+
+export { NodePanel };
 
 export default NodePanel;

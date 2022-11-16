@@ -3,10 +3,10 @@ import { map } from 'lodash';
 import { bindActionCreators, compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import withPrompt from '../../behaviours/withPrompt';
 import Search from '../Search';
 import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
-import { entityAttributesProperty, entityPrimaryKeyProperty } from '../../ducks/modules/network';
 import { makeGetSubjectType, makeNetworkNodesForPrompt, makeGetAdditionalAttributes } from '../../selectors/interface';
 import { getNetworkNodes, makeGetNodeTypeDefinition, makeGetNodeLabel } from '../../selectors/network';
 import { getCardAdditionalProperties, makeGetNodeIconName, makeGetPromptNodeModelData } from '../../selectors/name-generator';
@@ -82,6 +82,7 @@ class NameGeneratorAutoComplete extends Component {
         <div className={`${baseClass}__nodes`}>
           <NodeList
             id={ListId}
+            stageId={stage.id}
             listId={`${stage.id}_${prompt.id}_${ListId}`}
             items={nodesForPrompt}
             itemType="EXISTING_NODE"

@@ -46,25 +46,25 @@ const CategoricalItem = ({
                 <MarkdownLabel inline label={label} />
               </h3>
               {(!isExpanded && details)
-              && (
-                <h5>
-                  <MarkdownLabel inline label={details} />
-                </h5>
-              )}
+                && (
+                  <h5>
+                    <MarkdownLabel inline label={details} />
+                  </h5>
+                )}
             </div>
           </Flipped>
           {isExpanded
             && (
-            <div className="categorical-item__content">
-              <NodeList
-                stage={stage}
-                listId={`CATBIN_NODE_LIST_${label}`}
-                id={`CATBIN_NODE_LIST_${label}`}
-                onItemClick={onClickItem}
-                items={nodes}
-                sortOrder={sortOrder}
-              />
-            </div>
+              <div className="categorical-item__content">
+                <NodeList
+                  stageId={stage.id}
+                  listId={`CATBIN_NODE_LIST_${label}`}
+                  id={`CATBIN_NODE_LIST_${label}`}
+                  onItemClick={onClickItem}
+                  items={nodes}
+                  sortOrder={sortOrder}
+                />
+              </div>
             )}
         </div>
       </div>
@@ -93,8 +93,8 @@ CategoricalItem.defaultProps = {
   isOver: false,
   label: 'undefined',
   nodes: [],
-  onClick: () => {},
-  onClickItem: () => {},
+  onClick: () => { },
+  onClickItem: () => { },
   sortOrder: [],
   willAccept: false,
 };

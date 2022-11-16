@@ -6,11 +6,12 @@ import { isNil } from 'lodash';
 import color from 'color';
 import { MarkdownLabel } from '@codaco/ui/lib/components/Fields';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
+import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { makeNetworkNodesForType, makeGetVariableOptions, makeGetPromptVariable } from '../selectors/interface';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import { NodeList } from '../components';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
-import { getEntityAttributes, entityAttributesProperty, entityPrimaryKeyProperty } from '../ducks/modules/network';
+import { getEntityAttributes } from '../ducks/modules/network';
 
 class OrdinalBins extends PureComponent {
   promptColor = () => {
@@ -82,7 +83,7 @@ class OrdinalBins extends PureComponent {
         </div>
         <div className="ordinal-bin--content" style={{ borderBottomColor: accentColor, background: panelColor }}>
           <NodeList
-            stage={stage}
+            stageId={stage.id}
             listId={`ORDBIN_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
             id={`ORDBIN_NODE_LIST_${index}`}
             items={bin.nodes}

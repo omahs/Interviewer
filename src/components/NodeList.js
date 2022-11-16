@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { compose } from 'redux';
 import PropTypes from 'prop-types';
-import { find, get, isEqual } from 'lodash';
+import { find, isEqual } from 'lodash';
 import cx from 'classnames';
 import { TransitionGroup } from 'react-transition-group';
 import { getCSSVariableAsString, getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import Node from '../containers/Node';
 import { Node as NodeTransition } from './Transition';
 import { scrollable } from '../behaviours';
@@ -14,8 +15,8 @@ import {
   MonitorDropTarget,
   MonitorDragSource,
 } from '../behaviours/DragAndDrop';
-import sortOrder from '../utils/sortOrder';
-import { entityPrimaryKeyProperty } from '../ducks/modules/network';
+import createSorter from '../utils/createSorter';
+import { get } from '../utils/lodash-replacements';
 
 const EnhancedNode = DragSource(Node);
 
@@ -26,7 +27,7 @@ class NodeList extends Component {
   constructor(props) {
     super(props);
 
-    const sorter = sortOrder(props.sortOrder);
+    const sorter = createSorter(props.sortOrder);
     const sortedNodes = sorter(props.items);
 
     this.state = {
@@ -53,7 +54,7 @@ class NodeList extends Component {
       return;
     }
 
-    const sorter = sortOrder(newProps.sortOrder);
+    const sorter = createSorter(newProps.sortOrder);
     const sortedNodes = sorter(newProps.items);
     // if we provided the same id, then just update normally
     if (newProps.listId === listId) {
@@ -94,9 +95,7 @@ class NodeList extends Component {
       meta,
       hoverColor,
       className,
-      stage: {
-        id: stageId,
-      },
+      stageId,
       disableDragNew,
       externalData,
     } = this.props;
@@ -162,10 +161,10 @@ class NodeList extends Component {
 
 NodeList.propTypes = {
   disableDragNew: PropTypes.bool,
-  stage: PropTypes.object.isRequired,
   className: PropTypes.string,
   hoverColor: PropTypes.string,
   id: PropTypes.string.isRequired,
+  stageId: PropTypes.string.isRequired,
   isDragging: PropTypes.bool,
   isOver: PropTypes.bool,
   items: PropTypes.array,
@@ -189,8 +188,8 @@ NodeList.defaultProps = {
   itemType: 'NODE',
   label: () => (''),
   meta: {},
-  onDrop: () => {},
-  onItemClick: () => {},
+  onDrop: () => { },
+  onItemClick: () => { },
   sortOrder: [],
   willAccept: false,
 };
