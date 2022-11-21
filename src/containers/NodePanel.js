@@ -59,37 +59,40 @@ const NodePanel = (props) => {
   }), [nodesForCurrentPrompt, nodesForOtherPrompts]);
 
   useEffect(() => {
-    // If there are no source nodes, return an empty array
+    /**
+     * If there are no source nodes, we can skip all other processing, and just return
+     * an empty array.
+     *
+     * This means either external data is still loading, or there are no nodes in the
+     * interview network.
+     */
     if (!sourceNodes) {
       setPanelNodes([]);
       return;
     }
+    // If we have a filter specified for the panel, construct a filter and apply it.
+    // Otherwise, just use the source nodes.
+    const filteredNodes = filter
+      ? customFilter(filter)({ nodes: sourceNodes, edges, ego }).nodes
+      : sourceNodes;
 
-    // Filter potential nodes based on the panel's filter property
-    let filteredNodes;
+    /**
+     * filterSet contains nodeIds of nodes that should be filtered out of the
+     * panel.
+     *
+     * When using the interview network(dataSource === 'existing'), just filter
+     * out nodes that are nominated on the current prompt.
+     *
+     * When using an external data source, filter all nodes in the network by
+     * combining current prompt nodes and other prompt nodes.
+     */
+    const filterSet = new Set([
+      ...nodeIds.prompt,
+      ...(dataSource !== 'existing' ? nodeIds.other : []),
+    ]);
 
-    if (!filter) {
-      filteredNodes = sourceNodes;
-    } else {
-      const result = customFilter(filter)({ nodes: sourceNodes, edges, ego });
-      filteredNodes = result.nodes;
-    }
-
-    // Set panelNodes based on the dataSource
-    if (dataSource === 'existing') {
-      setPanelNodes(filteredNodes.filter(notInSet(new Set(nodeIds.prompt))));
-      return;
-    }
-
-    // We haven't yet recieved external data (must be loading)
-    if (!externalNodes) {
-      setPanelNodes([]);
-      return;
-    }
-
-    // We have external data
-    setPanelNodes(filteredNodes.filter(notInSet(new Set([...nodeIds.prompt, ...nodeIds.other]))));
-  }, [nodeIds, sourceNodes]);
+    setPanelNodes(filteredNodes.filter(notInSet(filterSet)));
+  }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
 
   useEffect(() => {
     const { isLoading } = status;
@@ -98,7 +101,9 @@ const NodePanel = (props) => {
     onUpdate(panelNodes.length, panelNodeIds, isLoading);
   }, [panelNodes, status]);
 
-  const handleDrop = useCallback((item) => onDrop(item, dataSource), [onDrop, dataSource]);
+  const handleDrop = () => {
+    useCallback((item) => onDrop(item, dataSource), [onDrop, dataSource]);
+  };
 
   return (
     <Panel
