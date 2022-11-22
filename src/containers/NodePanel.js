@@ -1,7 +1,6 @@
 import React, {
   useState,
   useMemo,
-  useCallback,
   useEffect,
 } from 'react';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
@@ -34,6 +33,7 @@ const NodePanel = (props) => {
     minimize,
     stage,
     disableDragNew,
+    ...nodeListProps
   } = props;
 
   const {
@@ -101,9 +101,7 @@ const NodePanel = (props) => {
     onUpdate(panelNodes.length, panelNodeIds, isLoading);
   }, [panelNodes, status]);
 
-  const handleDrop = () => {
-    useCallback((item) => onDrop(item, dataSource), [onDrop, dataSource]);
-  };
+  const handleDrop = (item) => onDrop(item, dataSource);
 
   return (
     <Panel
@@ -114,6 +112,7 @@ const NodePanel = (props) => {
         <h4>Loading</h4>
       ) : (
         <NodeList
+          {...nodeListProps}
           items={panelNodes}
           listId={listId}
           id={id}
