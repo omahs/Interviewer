@@ -162,7 +162,6 @@ const NodePanels = memo((props) => {
 
     const {
       stage,
-      handlePanelUpdate,
     } = props;
 
     const {
@@ -195,6 +194,14 @@ const NodePanels = memo((props) => {
       prompt: nodesForCurrentPrompt.map(getNodeId),
       other: nodesForOtherPrompts.map(getNodeId),
     }), [nodesForCurrentPrompt, nodesForOtherPrompts]);
+
+    const handlePanelUpdate = (index) => (nodeCount, nodeIndex, isLoading) => {
+      const panelIndexes = [panels.panelIndexes];
+      panelIndexes[index] = { count: nodeCount, index: nodeIndex, isLoading };
+        return {
+          panelIndexes,
+        };
+    }
 
     useEffect(() => {
       /**
@@ -237,6 +244,8 @@ const NodePanels = memo((props) => {
     useEffect(() => {
       const { isLoading } = status;
       const panelNodeIds = sourceNodes ? new Set(sourceNodes.map(getNodeId)) : new Set();
+      const onUpdate = handlePanelUpdate(index);
+      onUpdate(panelNodeIds.size, panelNodeIds, isLoading);
     }, [sourceNodes, status]);
 
     // reformat filteredPanelNodes as panelItems for DataCard component
