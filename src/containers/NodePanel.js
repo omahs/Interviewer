@@ -41,7 +41,7 @@ const NodePanel = (props) => {
     id: stageId,
   } = stage;
 
-  const [panelNodes, setPanelNodes] = useState([]);
+  const [filteredPanelNodes, setFilteredPanelNodes] = useState([]);
   const [externalNodes, status] = useExternalData(dataSource, subject);
 
   const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
@@ -67,7 +67,7 @@ const NodePanel = (props) => {
      * interview network.
      */
     if (!sourceNodes) {
-      setPanelNodes([]);
+      setFilteredPanelNodes([]);
       return;
     }
     // If we have a filter specified for the panel, construct a filter and apply it.
@@ -91,15 +91,17 @@ const NodePanel = (props) => {
       ...(dataSource !== 'existing' ? nodeIds.other : []),
     ]);
 
-    setPanelNodes(filteredNodes.filter(notInSet(filterSet)));
+    setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)));
   }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
 
+  // Once data is loaded, send the parent a complete list of NodeIDs that can
+  // then be used to determine if a node originated here.
   useEffect(() => {
     const { isLoading } = status;
-    const panelNodeIds = new Set(panelNodes.map(getNodeId));
+    const panelNodeIds = sourceNodes ? new Set(sourceNodes.map(getNodeId)) : new Set();
 
-    onUpdate(panelNodes.length, panelNodeIds, isLoading);
-  }, [panelNodes, status]);
+    onUpdate(panelNodeIds.size, panelNodeIds, isLoading);
+  }, [sourceNodes, status]);
 
   const handleDrop = (item) => onDrop(item, dataSource);
 
@@ -113,7 +115,7 @@ const NodePanel = (props) => {
       ) : (
         <NodeList
           {...nodeListProps}
-          items={panelNodes}
+          items={filteredPanelNodes}
           listId={listId}
           id={id}
           stageId={stageId}

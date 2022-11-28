@@ -83,13 +83,11 @@ class NodePanels extends PureComponent {
 
     if (panelIndexes.length !== panels.length) { return false; }
 
-    const panel = panels[index];
-    const panelIndex = panelIndexes[index].index;
-
     // We only accept existing nodes in panels
     if (meta.itemType !== 'EXISTING_NODE') { return false; }
 
     // Rules for when panel contains existing nodes
+    const panel = panels[index];
     if (panel.dataSource === 'existing') {
       // Don't allow nodes into existing panel if this is their last prompt ID
       return (
@@ -97,8 +95,10 @@ class NodePanels extends PureComponent {
       );
     }
 
-    // Rules for when panel contains external data
-    // We need the original list though
+    // Panel source is external data if we get here
+    // For external data, we only allow nodes back into the panel if their ID is
+    // contained in the panel's index.
+    const panelIndex = panelIndexes[index].index;
     return panelIndex && panelIndex.has(meta[entityPrimaryKeyProperty]);
   };
 
@@ -113,7 +113,7 @@ class NodePanels extends PureComponent {
 
   isAnyPanelOpen = () => {
     const { panels } = this.props;
-    return panels.some((panel, index) => this.isPanelOpen(index));
+    return panels.some((_, index) => this.isPanelOpen(index));
   };
 
   handlePanelUpdate = (index) => (nodeCount, nodeIndex, isLoading) => {
