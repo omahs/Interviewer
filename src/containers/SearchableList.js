@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import uuid from 'uuid';
 import cx from 'classnames';
 import { motion } from 'framer-motion';
-import { isEqual, get } from 'lodash';
+import { isEqual, get, isEmpty } from 'lodash';
 import { getCSSVariableAsNumber } from '@codaco/ui/lib/utils/CSSVariables';
 import Search from '@codaco/ui/lib/components/Fields/Search';
 import Loading from '../components/Loading';
@@ -136,7 +136,7 @@ const SearchableList = (props) => {
   const showTooMany = mode === modes.LARGE && !hasQuery;
   const numberOfSortOptions = get(sortOptions, 'sortableProperties', []).length;
   const canSort = numberOfSortOptions > 0;
-
+  console.log('canSort', canSort, numberOfSortOptions);
   const animationDuration = getCSSVariableAsNumber('--animation-duration-standard-ms') / 1000;
 
   const variants = {
@@ -224,15 +224,17 @@ const SearchableList = (props) => {
             />
           )}
         </div>
-        <div className="searchable-list__search">
-          <Search
-            placeholder="Enter a search term..."
-            input={{
-              value: query,
-              onChange: handleChangeSearch,
-            }}
-          />
-        </div>
+        {!isEmpty(searchOptions) && (
+          <div className="searchable-list__search">
+            <Search
+              placeholder="Enter a search term..."
+              input={{
+                value: query,
+                onChange: handleChangeSearch,
+              }}
+            />
+          </div>
+        )}
       </Panel>
     </motion.div>
   );

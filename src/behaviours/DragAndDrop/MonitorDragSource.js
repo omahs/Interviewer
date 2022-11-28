@@ -1,4 +1,4 @@
-import Monitor from './Monitor';
+import Monitor, { useMonitor } from './Monitor';
 
 const defaultMonitorProps = {
   isDragging: false,
@@ -19,5 +19,8 @@ const getMonitorProps = (state) => {
 };
 
 const MonitorDragSource = (types) => Monitor(getMonitorProps, types);
+
+// Hook version of the above using useMonitor:
+export const useDragMonitor = (types) => useMonitor(getMonitorProps, types);
 
 export default MonitorDragSource;

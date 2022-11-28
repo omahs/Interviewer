@@ -33,9 +33,11 @@ const Panel = ({
 
   return (
     <div className={panelClasses} style={styles}>
-      <div className="panel__heading" onClick={toggleCollapsed}>
-        <h3 className="panel__heading-header">{title}</h3>
-      </div>
+      {title && (
+        <div className="panel__heading" onClick={toggleCollapsed}>
+          <h3 className="panel__heading-header">{title}</h3>
+        </div>
+      )}
       <div className="panel__content">
         {children}
       </div>

@@ -65,7 +65,7 @@ export const makeGetNodeIconName = () => createSelector(
   },
 );
 
-export const makeGetPanelConfiguration = () => createSelector(
+export const getPanelConfiguration = createSelector(
   propPanels,
   (panels) => (panels ? panels.map((panel) => ({ ...defaultPanelConfiguration, ...panel })) : []),
 );

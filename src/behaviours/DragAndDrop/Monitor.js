@@ -1,5 +1,5 @@
 /* eslint-disable implicit-arrow-linebreak, react/jsx-props-no-spreading */
-import React, { PureComponent } from 'react';
+import React, { PureComponent, useState, useRef, useEffect } from 'react';
 import { pick, isEqual } from 'lodash';
 import store from './store';
 
@@ -37,5 +37,31 @@ const monitor = (getMonitorProps, types) => (WrappedComponent) =>
       return <WrappedComponent {...props} />;
     }
   };
+
+export const useMonitor = (getMonitorProps, types) => {
+  const internalState = useRef();
+  const [state, setState] = useState({ monitorProps: null });
+
+  const updateState = (newState) => {
+    if (isEqual(internalState.current, newState)) { return; }
+    internalState.current = newState;
+    setState(newState);
+  };
+
+  const updateMonitorProps = () => {
+    const status = getMonitorProps(store.getState(), types);
+    updateState(status);
+
+    return status;
+  };
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe(updateMonitorProps);
+
+    return unsubscribe;
+  }, []);
+
+  return state;
+};
 
 export default monitor;
