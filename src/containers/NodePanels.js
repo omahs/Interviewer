@@ -1,11 +1,18 @@
-import React, { memo, useCallback, useState, useMemo } from 'react';
+import React, {
+  memo, useCallback, useState, useMemo, useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { DataCard } from '@codaco/ui/lib/components/Cards';
 import { Node, Spinner } from '@codaco/ui';
-import { useDispatch } from 'react-redux';
-import { makeGetAdditionalAttributes } from '../selectors/interface';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  makeGetAdditionalAttributes,
+  makeNetworkNodesForPrompt,
+  makeNetworkNodesForOtherPrompts,
+} from '../selectors/interface';
+import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
 import { Panel, Panels } from '../components';
 import { getPanelConfiguration } from '../selectors/name-generator';
@@ -14,6 +21,8 @@ import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
 import usePropSelector from './Interfaces/NameGeneratorRoster/usePropSelector';
 import SearchableList from './SearchableList';
 import { useDragMonitor } from '../behaviours/DragAndDrop/MonitorDragSource';
+import useExternalData from '../hooks/useExternalData';
+import customFilter from '../utils/networkQuery/filter';
 
 /**
   * Configures and renders `NodePanels` according to the protocol config
@@ -151,8 +160,95 @@ const NodePanels = memo((props) => {
       nodes,
     } = panel;
 
-    // ??
+    const {
+      stage,
+      handlePanelUpdate,
+    } = props;
+
+    const {
+      subject,
+      id: stageId,
+    } = stage;
+
+    // data fetching and filtering
+
+    // Small utility that returns the entityPrimaryKeyProperty of an entity
+    const getNodeId = (node) => node[entityPrimaryKeyProperty];
+
+    // Test if a given node is in a given Set of nodes
+    const notInSet = (set) => (node) => !set.has(node[entityPrimaryKeyProperty]);
+
+    const [filteredPanelNodes, setFilteredPanelNodes] = useState([]);
+    const [externalNodes, status] = useExternalData(dataSource, subject);
+
+    const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
+    const nodesForOtherPrompts = usePropSelector(makeNetworkNodesForOtherPrompts, props, true);
+
+    const sourceNodes = useMemo(
+      () => (dataSource === 'existing' ? nodesForOtherPrompts : externalNodes),
+      [dataSource, nodesForOtherPrompts, externalNodes],
+    );
+    const edges = useSelector(getNetworkEdges);
+    const ego = useSelector(getNetworkEgo);
+
+    const nodeIds = useMemo(() => ({
+      prompt: nodesForCurrentPrompt.map(getNodeId),
+      other: nodesForOtherPrompts.map(getNodeId),
+    }), [nodesForCurrentPrompt, nodesForOtherPrompts]);
+
+    useEffect(() => {
+      /**
+       * If there are no source nodes, we can skip all other processing, and just return
+       * an empty array.
+       *
+       * This means either external data is still loading, or there are no nodes in the
+       * interview network.
+       */
+      if (!sourceNodes) {
+        setFilteredPanelNodes([]);
+        return;
+      }
+      // If we have a filter specified for the panel, construct a filter and apply it.
+      // Otherwise, just use the source nodes.
+      const filteredNodes = filter
+        ? customFilter(filter)({ nodes: sourceNodes, edges, ego }).nodes
+        : sourceNodes;
+
+      /**
+       * filterSet contains nodeIds of nodes that should be filtered out of the
+       * panel.
+       *
+       * When using the interview network(dataSource === 'existing'), just filter
+       * out nodes that are nominated on the current prompt.
+       *
+       * When using an external data source, filter all nodes in the network by
+       * combining current prompt nodes and other prompt nodes.
+       */
+      const filterSet = new Set([
+        ...nodeIds.prompt,
+        ...(dataSource !== 'existing' ? nodeIds.other : []),
+      ]);
+
+      setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)));
+    }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
+
+    // Once data is loaded, send the parent a complete list of NodeIDs that can
+    // then be used to determine if a node originated here.
+    useEffect(() => {
+      const { isLoading } = status;
+      const panelNodeIds = sourceNodes ? new Set(sourceNodes.map(getNodeId)) : new Set();
+    }, [sourceNodes, status]);
+
+    // reformat filteredPanelNodes as panelItems for DataCard component
     const panelItems = [];
+    filteredPanelNodes.forEach((item, ind) => {
+      panelItems.push({
+        data: filteredPanelNodes[ind],
+        props: {
+          label: Object.values(filteredPanelNodes[ind].attributes)[0],
+        },
+      });
+    });
 
     return (
       <Panel
