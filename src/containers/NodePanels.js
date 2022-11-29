@@ -252,6 +252,7 @@ const NodePanels = memo((props) => {
     const panelItems = [];
     filteredPanelNodes.forEach((item, ind) => {
       panelItems.push({
+        attributes: filteredPanelNodes[ind].attributes,
         data: filteredPanelNodes[ind],
         props: {
           label: Object.values(filteredPanelNodes[ind].attributes)[0],
@@ -276,12 +277,13 @@ const NodePanels = memo((props) => {
         {!loading && !error && (
           <SearchableList
             id={`PANEL_NODE_LIST${index}`}
+            itemType="NEW_NODE" // drop type
             items={panelItems}
             columns={2}
             dragComponent={Node}
             itemComponent={DataCard}
             onDrop={handleDrop}
-            accepts={({ meta: { itemType } }) => itemType !== 'EXISTING_NODES'}
+            accepts={({ meta: { itemType } }) => itemType !== 'EXISTING_NODE'}
           />
         )}
       </Panel>
