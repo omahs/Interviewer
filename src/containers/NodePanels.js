@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { DataCard } from '@codaco/ui/lib/components/Cards';
-import { Node, Spinner } from '@codaco/ui';
+import { Spinner } from '@codaco/ui';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   makeGetAdditionalAttributes,
@@ -18,6 +18,7 @@ import { Panel, Panels } from '../components';
 import { getPanelConfiguration } from '../selectors/name-generator';
 import { get } from '../utils/lodash-replacements';
 import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
+import Node from './Node';
 import usePropSelector from './Interfaces/NameGeneratorRoster/usePropSelector';
 import SearchableList from './SearchableList';
 import { useDragMonitor } from '../behaviours/DragAndDrop/MonitorDragSource';
@@ -111,7 +112,6 @@ const NodePanels = memo((props) => {
 
   const isPanelLoading = useCallback((index) => {
     const loading = get(panelDefinitions, [index, 'loading']);
-
     return loading;
   }, []);
 
@@ -275,13 +275,13 @@ const NodePanels = memo((props) => {
         {error && (<h4>Error!</h4>)}
         {!loading && !error && (
           <SearchableList
-            id={`PANEL_${index}`}
+            id={`PANEL_NODE_LIST${index}`}
             items={panelItems}
             columns={2}
             dragComponent={Node}
             itemComponent={DataCard}
             onDrop={handleDrop}
-            accepts={() => isPanelCompatible(index)}
+            accepts={({ meta: { itemType } }) => itemType !== 'EXISTING_NODES'}
           />
         )}
       </Panel>
