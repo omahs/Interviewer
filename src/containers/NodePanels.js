@@ -83,7 +83,6 @@ const NodePanels = memo((props) => {
     (panelNumber) => colorPresets[panelNumber % colorPresets.length],
     [colorPresets],
   );
-
   const handleDrop = useCallback(
     ({ meta }, dataSource) => {
       /**
@@ -182,7 +181,6 @@ const NodePanels = memo((props) => {
 
     const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
     const nodesForOtherPrompts = usePropSelector(makeNetworkNodesForOtherPrompts, props, true);
-
     const sourceNodes = useMemo(
       () => (dataSource === 'existing' ? nodesForOtherPrompts : externalNodes),
       [dataSource, nodesForOtherPrompts, externalNodes],
@@ -276,14 +274,14 @@ const NodePanels = memo((props) => {
         {error && (<h4>Error!</h4>)}
         {!loading && !error && (
           <SearchableList
-            id={`PANEL_NODE_LIST${index}`}
+            id={`PANEL_NODE_LIST_${index}`}
             itemType="NEW_NODE" // drop type
             items={panelItems}
             columns={2}
             dragComponent={Node}
             itemComponent={DataCard}
             onDrop={handleDrop}
-            accepts={({ meta: { itemType } }) => itemType !== 'EXISTING_NODE'}
+            accepts={({ meta }) => get(meta, 'itemType', null) !== 'SOURCE_NODES'}
           />
         )}
       </Panel>

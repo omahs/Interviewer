@@ -217,7 +217,7 @@ class NameGenerator extends Component {
       addNode,
     } = this.props;
 
-    const node = { ...item.meta };
+    const node = { ...item.meta.data };
 
     // Test if we are updating an existing network node, or adding it to the network
     if (has(node, 'promptIDs')) {
