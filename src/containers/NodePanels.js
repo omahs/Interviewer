@@ -83,8 +83,9 @@ const NodePanels = memo((props) => {
     (panelNumber) => colorPresets[panelNumber % colorPresets.length],
     [colorPresets],
   );
+
   const handleDrop = useCallback(
-    ({ meta }, dataSource) => {
+    ({ meta }) => {
       /**
        * Handle a node being dropped into a panel
        * If this panel is showing the interview network, remove the node from the current prompt.
@@ -234,7 +235,22 @@ const NodePanels = memo((props) => {
         ...(dataSource !== 'existing' ? nodeIds.other : []),
       ]);
 
-      setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)));
+      const filteredPanelNodes = filteredNodes.filter(notInSet(filterSet));
+
+      // reformat filteredPanelNodes as panelItems for DataCard component
+      const panelItems = [];
+      filteredPanelNodes.forEach((item) => {
+        panelItems.push({
+         attributes: item.attributes,
+          data: item,
+          props: {
+            label: Object.values(item.attributes)[0],
+         },
+        });
+      });
+
+      setFilteredPanelNodes(panelItems);
+
     }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
 
     // Once data is loaded, send the parent a complete list of NodeIDs that can
@@ -246,17 +262,6 @@ const NodePanels = memo((props) => {
       onUpdate(panelNodeIds.size, panelNodeIds, isLoading);
     }, [sourceNodes, status]);
 
-    // reformat filteredPanelNodes as panelItems for DataCard component
-    const panelItems = [];
-    filteredPanelNodes.forEach((item, ind) => {
-      panelItems.push({
-        attributes: filteredPanelNodes[ind].attributes,
-        data: filteredPanelNodes[ind],
-        props: {
-          label: Object.values(filteredPanelNodes[ind].attributes)[0],
-        },
-      });
-    });
 
     return (
       <Panel
@@ -276,7 +281,7 @@ const NodePanels = memo((props) => {
           <SearchableList
             id={`PANEL_NODE_LIST_${index}`}
             itemType="NEW_NODE" // drop type
-            items={panelItems}
+            items={filteredPanelNodes}
             columns={2}
             dragComponent={Node}
             itemComponent={DataCard}
