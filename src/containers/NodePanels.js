@@ -85,7 +85,7 @@ const NodePanels = memo((props) => {
   );
 
   const handleDrop = useCallback(
-    ({ meta }) => {
+    ({ meta }, dataSource) => {
       /**
        * Handle a node being dropped into a panel
        * If this panel is showing the interview network, remove the node from the current prompt.
@@ -178,6 +178,7 @@ const NodePanels = memo((props) => {
     const notInSet = (set) => (node) => !set.has(node[entityPrimaryKeyProperty]);
 
     const [filteredPanelNodes, setFilteredPanelNodes] = useState([]);
+    const [panelItems, setPanelItems] = useState([]);
     const [externalNodes, status] = useExternalData(dataSource, subject);
 
     const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
@@ -235,23 +236,24 @@ const NodePanels = memo((props) => {
         ...(dataSource !== 'existing' ? nodeIds.other : []),
       ]);
 
-      const filteredPanelNodes = filteredNodes.filter(notInSet(filterSet));
+      setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)));
 
-      // reformat filteredPanelNodes as panelItems for DataCard component
+    }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
+
+    useEffect(() => {
+       // reformat filteredPanelNodes as panelItems for DataCard component
       const panelItems = [];
       filteredPanelNodes.forEach((item) => {
         panelItems.push({
-         attributes: item.attributes,
+          attributes: item.attributes,
           data: item,
           props: {
             label: Object.values(item.attributes)[0],
-         },
+          },
         });
       });
-
-      setFilteredPanelNodes(panelItems);
-
-    }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
+      setPanelItems(panelItems);
+    }, [filteredPanelNodes]);
 
     // Once data is loaded, send the parent a complete list of NodeIDs that can
     // then be used to determine if a node originated here.
@@ -281,7 +283,7 @@ const NodePanels = memo((props) => {
           <SearchableList
             id={`PANEL_NODE_LIST_${index}`}
             itemType="NEW_NODE" // drop type
-            items={filteredPanelNodes}
+            items={panelItems}
             columns={2}
             dragComponent={Node}
             itemComponent={DataCard}
