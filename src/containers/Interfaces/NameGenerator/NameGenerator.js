@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,54 +7,71 @@ import {
 } from 'lodash';
 import { Icon } from '@codaco/ui';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import Prompts from '../../components/Prompts';
-import withPrompt from '../../behaviours/withPrompt';
-import { actionCreators as sessionsActions } from '../../ducks/modules/sessions';
-import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes, makeGetStageNodeCount } from '../../selectors/interface';
-import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../selectors/name-generator';
-import NodePanels from '../NodePanels';
-import NodeForm from '../NodeForm';
-import { NodeList, NodeBin } from '../../components';
+import Prompts from '../../../components/Prompts';
+import withPrompt from '../../../behaviours/withPrompt';
+import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
+import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes, makeGetStageNodeCount, makeNetworkNodesForOtherPrompts } from '../../../selectors/interface';
+import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../../selectors/name-generator';
+import NodePanels from '../../NodePanels';
+import NodeForm from '../../NodeForm';
+import { NodeList, NodeBin } from '../../../components';
 import {
   MaxNodesReached, maxNodesWithDefault, MinNodesNotMet, minNodesWithDefault,
-} from './NameGeneratorQuickAdd';
-import { get } from '../../utils/lodash-replacements';
+} from './MinMaxHelpers';
+import { get } from '../../../utils/lodash-replacements';
+import QuickNodeForm from '../../../components/QuickNodeForm';
 
-/**
-  * Name Generator Interface
-  * @extends Component
-  */
-class NameGenerator extends Component {
-  constructor(props) {
-    super(props);
+// Create a context to store interface specific state
+export const InterfaceContext = React.createContext();
 
-    const {
-      registerBeforeNext,
-    } = this.props;
+// Create a provider to pass state to components
+const InterfaceProvider = ({
+  children,
+  ...data
+}) => {
+  return (
+    <InterfaceContext.Provider value={data}>
+      {children}
+    </InterfaceContext.Provider>
+  );
+};
 
-    registerBeforeNext(this.handleBeforeLeaving);
+const NameGenerator = (props) => {
+  const {
+    registerBeforeNext,
+    isFirstPrompt,
+    isLastPrompt,
+    minNodes,
+    maxNodes,
+    stageNodeCount,
+    onComplete,
+    updateNode,
+    addNode,
+    newNodeModelData,
+    newNodeAttributes,
+    nodesForPrompt,
+    nodesForOtherPrompts,
+    nodeIconName,
+    prompt,
+    stage,
+    removeNode,
+  } = props;
 
-    this.state = {
-      selectedNode: null,
-      showNodeForm: false,
-      showMinWarning: false,
-    };
-  }
+  const {
+    prompts,
+    form,
+  } = stage;
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillReceiveProps() {
-    this.setState({ showMinWarning: false });
-  }
+  const [showForm, setShowForm] = useState(false);
+  const [editingNode, setEditingNode] = useState(null);
+  const [showMinWarning, setShowMinWarning] = useState(false);
 
-  handleBeforeLeaving = (direction, destination) => {
-    const {
-      isFirstPrompt,
-      isLastPrompt,
-      minNodes,
-      stageNodeCount,
-      onComplete,
-    } = this.props;
+  useEffect(() => {
+    console.log('component will receive props');
+    setShowMinWarning(false);
+  });
 
+  const handleBeforeLeaving = (direction, destination) => {
     const isLeavingStage = (isFirstPrompt() && direction === -1)
       || (isLastPrompt() && direction === 1);
 
@@ -62,27 +79,23 @@ class NameGenerator extends Component {
     // is triggered by Stages Menu. Use this to skip message if user has
     // navigated directly using stages menu.
     if (isUndefined(destination) && isLeavingStage && stageNodeCount < minNodes) {
-      this.setState({ showMinWarning: true });
+      setShowMinWarning(true);
       return;
     }
 
     onComplete();
-  }
+  };
+
+  useEffect(() => {
+    registerBeforeNext(handleBeforeLeaving);
+  }, []);
 
   /**
    * Drop node handler
    * Adds prompt attributes to existing nodes, or adds new nodes to the network.
    * @param {object} item - key/value object containing node object from the network store
    */
-  handleDropNode = (item) => {
-    const {
-      updateNode,
-      addNode,
-      newNodeModelData,
-      newNodeAttributes,
-    } = this.props;
-
-
+  const handleDropNode = (item) => {
     const node = { ...item.meta.data };
     // Test if we are updating an existing network node, or adding it to the network
     if (has(node, 'promptIDs')) {
@@ -100,92 +113,52 @@ class NameGenerator extends Component {
         { ...droppedAttributeData, ...newNodeAttributes },
       );
     }
-  }
+  };
 
   /**
   * Node Form submit handler
   */
-  handleSubmitForm = ({ form }) => {
-    const { selectedNode } = this.state;
-    const {
-      addNode,
-      updateNode,
-      newNodeModelData,
-      newNodeAttributes,
-    } = this.props;
+  const handleSubmitForm = ({ form: formData }) => {
+    if (!formData) { return; }
 
-    if (form) {
-      if (!selectedNode) {
-        /**
-        *  addNode(modelData, attributeData);
-        */
-        addNode(
-          newNodeModelData,
-          { ...newNodeAttributes, ...form },
-        );
-      } else {
-        /**
-        * updateNode(nodeId, newModelData, newAttributeData)
-        */
-        const selectedUID = selectedNode[entityPrimaryKeyProperty];
-        updateNode(selectedUID, {}, form);
-      }
+    if (!editingNode) {
+      addNode(
+        newNodeModelData,
+        { ...newNodeAttributes, ...formData },
+      );
+    } else {
+      const selectedUID = editingNode[entityPrimaryKeyProperty];
+      updateNode(selectedUID, {}, formData);
     }
 
-    this.setState({ showNodeForm: false, selectedNode: null });
-  }
+    setShowForm(false);
+    setEditingNode(null);
+  };
 
-  /**
-   * Click node handler
-   * Triggers the edit node form.
-   * @param {object} node - key/value object containing node object from the network store
-   */
-  handleSelectNode = (node) => {
-    this.setState({
-      selectedNode: node,
-      showNodeForm: true,
-    });
-  }
+  const handleSelectNode = (node) => {
+    setEditingNode(node);
+    setShowForm(true);
+  };
 
-  handleClickAddNode = () => {
-    const { showNodeForm } = this.state;
-    this.setState({
-      selectedNode: null,
-      showNodeForm: !showNodeForm,
-    });
-  }
+  const handleOpenForm = () => {
+    setShowMinWarning(false);
+    setEditingNode(null);
+    setShowForm(true);
+  };
 
-  handleCloseForm = () => {
-    this.setState({
-      selectedNode: null,
-      showNodeForm: false,
-    });
-  }
+  const handleFormClose = () => {
+    setEditingNode(null);
+    setShowForm(false);
+  };
 
-  render() {
-    const {
-      nodesForPrompt,
-      nodeIconName,
-      prompt,
-      stage,
-      removeNode,
-      stageNodeCount,
-      maxNodes,
-      minNodes,
-    } = this.props;
-
-    const {
-      prompts,
-      form,
-    } = stage;
-
-    const {
-      selectedNode,
-      showNodeForm,
-      showMinWarning,
-    } = this.state;
-
-    return (
+  return (
+    <InterfaceProvider
+      stage={stage}
+      prompt={prompt}
+      nodesForPrompt={nodesForPrompt}
+      nodesForOtherPrompts={nodesForOtherPrompts}
+      newNodeAttributes={newNodeAttributes}
+    >
       <div className="name-generator-interface">
         <div className="name-generator-interface__prompt">
           <Prompts
@@ -194,9 +167,16 @@ class NameGenerator extends Component {
           />
         </div>
         <div className="name-generator-interface__main">
-          <div className="name-generator-interface__panels">
-            <NodePanels stage={stage} prompt={prompt} disableAddNew={stageNodeCount >= maxNodes} />
-          </div>
+          {has(stage, 'panels') && (
+            <div className="name-generator-interface__panels">
+              <NodePanels
+                panels={stage.panels}
+                stage={stage}
+                prompt={prompt}
+                disableAddNew={stageNodeCount >= maxNodes}
+              />
+            </div>
+          )}
           <div className="name-generator-interface__nodes">
             <NodeList
               items={nodesForPrompt}
@@ -205,44 +185,52 @@ class NameGenerator extends Component {
               id="MAIN_NODE_LIST"
               accepts={({ meta }) => get(meta, 'itemType', null) === 'NEW_NODE'}
               itemType="EXISTING_NODE"
-              onDrop={this.handleDropNode}
-              onItemClick={this.handleSelectNode}
+              onDrop={handleDropNode}
+              onItemClick={handleSelectNode}
             />
           </div>
         </div>
         <MaxNodesReached show={stageNodeCount >= maxNodes} />
         <MinNodesNotMet show={showMinWarning} minNodes={minNodes} />
-        {form
-          && (
+        {form ? (
+          <>
             <div
-              onClick={this.handleClickAddNode}
+              onClick={handleOpenForm}
               className={`name-generator-interface__add-node ${stageNodeCount >= maxNodes ? 'name-generator-interface__add-node--disabled' : ''}`}
               data-clickable="open-add-node"
             >
               <Icon name={nodeIconName} />
             </div>
-          )}
-
-        {form
-          && (
             <NodeForm
-              key={selectedNode}
-              node={selectedNode}
+              key={editingNode}
+              node={editingNode}
               stage={stage}
-              onSubmit={this.handleSubmitForm}
-              onClose={this.handleCloseForm}
-              show={showNodeForm}
+              onSubmit={handleSubmitForm}
+              onClose={handleFormClose}
+              show={showForm}
             />
-          )}
+          </>
+        ) : (
+          <QuickNodeForm
+            show={showForm}
+            onSubmit={handleSubmitForm}
+            onClick={handleOpenForm}
+            onClose={handleFormClose}
+            disabled={stageNodeCount >= maxNodes}
+            nodeType={stage.subject.type}
+            nodeIconName={nodeIconName}
+            targetVariable={stage.quickAdd}
+          />
+        )}
         <NodeBin
           accepts={(meta) => meta.itemType === 'EXISTING_NODE'}
           dropHandler={(meta) => removeNode(meta[entityPrimaryKeyProperty])}
           id="NODE_BIN"
         />
       </div>
-    );
-  }
-}
+    </InterfaceProvider>
+  );
+};
 
 NameGenerator.defaultProps = {
   form: null,
@@ -263,6 +251,7 @@ NameGenerator.propTypes = {
 
 function makeMapStateToProps() {
   const networkNodesForPrompt = makeNetworkNodesForPrompt();
+  const networkNodesForOtherPrompts = makeNetworkNodesForOtherPrompts();
   const getPromptNodeAttributes = makeGetAdditionalAttributes();
   const getPromptNodeModelData = makeGetPromptNodeModelData();
   const getNodeIconName = makeGetNodeIconName();
@@ -279,6 +268,7 @@ function makeMapStateToProps() {
       newNodeAttributes: getPromptNodeAttributes(state, props),
       newNodeModelData: getPromptNodeModelData(state, props),
       nodesForPrompt: networkNodesForPrompt(state, props),
+      nodesForOtherPrompts: networkNodesForOtherPrompts(state, props),
       nodeIconName: getNodeIconName(state, props),
     };
   };

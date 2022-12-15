@@ -2,18 +2,25 @@ import React, {
   useState,
   useMemo,
   useEffect,
+  useContext,
+  useCallback,
 } from 'react';
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import { useSelector } from 'react-redux';
-import {
-  makeNetworkNodesForPrompt,
-  makeNetworkNodesForOtherPrompts,
-} from '../selectors/interface';
-import usePropSelector from './Interfaces/NameGeneratorRoster/usePropSelector';
+import { entityPrimaryKeyProperty, entityAttributesProperty } from '@codaco/shared-consts';
+import { useDispatch, useSelector } from 'react-redux';
+import { Spinner } from '@codaco/ui';
+import v4 from 'uuid/v4';
+import { DataCard } from '@codaco/ui/lib/components/Cards';
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
-import { Panel, NodeList } from '../components';
+import { Panel } from '../components';
+import { Node } from './Node';
 import useExternalData from '../hooks/useExternalData';
 import customFilter from '../utils/networkQuery/filter';
+import useDropMonitor from '../behaviours/DragAndDrop/useDropMonitor';
+import { useDragMonitor } from '../behaviours/DragAndDrop/MonitorDragSource';
+import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
+import { InterfaceContext } from './Interfaces/NameGenerator/NameGenerator';
+import { get } from '../utils/lodash-replacements';
+import HyperList from './HyperList';
 
 // Small utility that returns the entityPrimaryKeyProperty of an entity
 const getNodeId = (node) => node[entityPrimaryKeyProperty];
@@ -21,42 +28,98 @@ const getNodeId = (node) => node[entityPrimaryKeyProperty];
 // Test if a given node is in a given Set of nodes
 const notInSet = (set) => (node) => !set.has(node[entityPrimaryKeyProperty]);
 
-const NodePanel = (props) => {
+const NodePanel = ({
+  configuration,
+  highlight,
+  disableAddNew,
+}) => {
   const {
     id,
-    listId,
-    dataSource,
-    onDrop,
-    onUpdate,
-    filter,
     title,
-    minimize,
-    stage,
-    disableDragNew,
-    ...nodeListProps
-  } = props;
+    dataSource,
+    filter,
+  } = configuration;
 
   const {
-    subject,
-    id: stageId,
-  } = stage;
+    stage: {
+      subject,
+    },
+    nodesForPrompt,
+    nodesForOtherPrompts,
+    newNodeAttributes,
+  } = useContext(InterfaceContext);
 
+  const dispatch = useDispatch();
+
+  // We connect to the drag monitor to know if the panel needs to open when
+  // minimizedto allow a node to be dropped inside it
+  const {
+    isDragging,
+    meta: dragMeta,
+  } = useDragMonitor();
+
+  // Monitor the drop state of the SearchableList
+  const panelDropMeta = useDropMonitor(id) || { isOver: false, willAccept: false };
+
+  const [initialPanelNodes, setInitialPanelNodes] = useState([]);
   const [filteredPanelNodes, setFilteredPanelNodes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [minimized, setMinimized] = useState(false);
+
+  const usesExternalData = useMemo(() => dataSource !== 'existing', [dataSource]);
+
   const [externalNodes, status] = useExternalData(dataSource, subject);
 
-  const nodesForCurrentPrompt = usePropSelector(makeNetworkNodesForPrompt, props, true);
-  const nodesForOtherPrompts = usePropSelector(makeNetworkNodesForOtherPrompts, props, true);
+  // Handle status changes from the external data hook
+  useEffect(() => {
+    const { isLoading, error: statusError } = status;
+
+    if (isLoading) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+
+    if (statusError) {
+      setError(error);
+    }
+  }, [status]);
+
   const sourceNodes = useMemo(
-    () => (dataSource === 'existing' ? nodesForOtherPrompts : externalNodes),
+    () => (usesExternalData ? externalNodes : nodesForOtherPrompts),
     [dataSource, nodesForOtherPrompts, externalNodes],
   );
+
   const edges = useSelector(getNetworkEdges);
   const ego = useSelector(getNetworkEgo);
 
   const nodeIds = useMemo(() => ({
-    prompt: nodesForCurrentPrompt.map(getNodeId),
+    prompt: nodesForPrompt.map(getNodeId),
     other: nodesForOtherPrompts.map(getNodeId),
-  }), [nodesForCurrentPrompt, nodesForOtherPrompts]);
+  }), [nodesForPrompt, nodesForOtherPrompts]);
+
+  const itemFormatter = useCallback((item) => {
+    if (usesExternalData) {
+      // DataCard requires different object structure
+      return {
+        id: item[entityPrimaryKeyProperty] || v4(),
+        [entityAttributesProperty]: item.attributes,
+        data: item,
+        props: {
+          label: Object.values(item.attributes)[0],
+          data: {
+            [Object.keys(item.attributes)[1]]: Object.values(item.attributes)[1],
+          },
+        },
+      };
+    }
+
+    return {
+      id: item[entityPrimaryKeyProperty] || v4(),
+      ...item,
+    };
+  }, [usesExternalData]);
 
   useEffect(() => {
     /**
@@ -88,46 +151,77 @@ const NodePanel = (props) => {
      */
     const filterSet = new Set([
       ...nodeIds.prompt,
-      ...(dataSource !== 'existing' ? nodeIds.other : []),
+      ...(usesExternalData ? nodeIds.other : []),
     ]);
 
-    setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)));
-  }, [nodeIds, sourceNodes, filter, edges, ego, dataSource]);
+    setFilteredPanelNodes(filteredNodes.filter(notInSet(filterSet)).map(itemFormatter));
+  }, [nodeIds, sourceNodes, filter, edges, ego, dataSource, itemFormatter]);
 
   // Once data is loaded, send the parent a complete list of NodeIDs that can
   // then be used to determine if a node originated here.
   useEffect(() => {
-    const { isLoading } = status;
     const panelNodeIds = sourceNodes ? new Set(sourceNodes.map(getNodeId)) : new Set();
-
-    onUpdate(panelNodeIds.size, panelNodeIds, isLoading);
+    setInitialPanelNodes(panelNodeIds);
   }, [sourceNodes, status]);
 
-  const handleDrop = (item) => onDrop(item, dataSource);
+  const handleDrop = useCallback(
+    ({ meta: dropMeta }) => {
+      // 1. If this panel is showing the interview network, remove the node from the current prompt.
+      if (dataSource === 'existing') {
+        dispatch(sessionsActions.removeNodeFromPrompt(
+          dropMeta[entityPrimaryKeyProperty],
+          prompt.id,
+          newNodeAttributes,
+        ));
+        return;
+      }
 
+      // 2. If it is an external data panel, remove the node form the interview network.
+      dispatch(sessionsActions.removeNode(dropMeta[entityPrimaryKeyProperty]));
+    },
+    [newNodeAttributes, prompt.id, dispatch, dataSource],
+  );
+
+  const ItemComponent = useMemo(() => (
+    usesExternalData ? DataCard : Node
+  ), [usesExternalData]);
+
+  // Control the panel's minimized state based on the drag monitor
+  useEffect(() => {
+    if (isDragging && dragMeta.itemType === 'NEW_NODE') {
+      setMinimized(false);
+    }
+  }, [isDragging, dragMeta]);
+
+  console.log('filteredPanelNodes', filteredPanelNodes);
   return (
     <Panel
       title={title}
-      minimize={minimize}
+      minimized={minimized}
+      highlight={highlight}
     >
-      {status.isLoading ? ( // Replace with the loading state of NodeList when that is updated
-        <h4>Loading</h4>
-      ) : (
-        <NodeList
-          {...nodeListProps}
-          items={filteredPanelNodes}
-          listId={listId}
+      {loading && (
+        <>
+          <Spinner small />
+          <h4>Loading...</h4>
+        </>
+      )}
+      {error && (<h4>Error!</h4>)}
+      {!loading && !error && (
+        <HyperList
           id={id}
-          stageId={stageId}
-          itemType="NEW_NODE"
+          itemType="NEW_NODE" // drop type
+          emptyComponent={() => (<h1>Empty panel should be hidden</h1>)}
+          items={filteredPanelNodes}
+          columns={usesExternalData ? 1 : 3}
+          dragComponent={Node} // Todo - must be set to the correct color for stage subject
+          itemComponent={ItemComponent}
           onDrop={handleDrop}
-          disableDragNew={disableDragNew}
+          accepts={({ meta: acceptsMeta }) => get(acceptsMeta, 'itemType', null) !== 'SOURCE_NODES'}
         />
       )}
     </Panel>
   );
 };
-
-export { NodePanel };
 
 export default NodePanel;

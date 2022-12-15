@@ -13,16 +13,10 @@ These selectors assume the following props:
   prompt: which contains the protocol config for the prompt
 */
 
-const defaultPanelConfiguration = {
-  title: '',
-  dataSource: 'existing',
-};
-
 // MemoedSelectors
 
 const stageCardOptions = (_, props) => props.stage.cardOptions;
 const stageSortOptions = (_, props) => props.stage.sortOptions;
-const propPanels = (_, props) => props.stage.panels;
 
 export const makeGetPromptNodeModelData = () => {
   const getSubject = makeGetSubject();
@@ -63,9 +57,4 @@ export const makeGetNodeIconName = () => createSelector(
     const nodeInfo = codebook.node;
     return (nodeInfo && nodeInfo[nodeType] && nodeInfo[nodeType].iconVariant) || 'add-a-person';
   },
-);
-
-export const getPanelConfiguration = createSelector(
-  propPanels,
-  (panels) => (panels ? panels.map((panel) => ({ ...defaultPanelConfiguration, ...panel })) : []),
 );

@@ -2,12 +2,11 @@
 import React from 'react';
 import { has } from 'lodash';
 import { Icon } from '@codaco/ui';
-import NameGenerator from './NameGenerator';
-import NameGeneratorQuickAdd from './NameGeneratorQuickAdd';
+import NameGenerator from './NameGenerator/NameGenerator';
 import NameGeneratorAutoComplete from './NameGeneratorAutoComplete';
-import OrdinalBin from './OrdinalBin';
 import NameGeneratorList from './NameGeneratorList';
 import NameGeneratorRoster from './NameGeneratorRoster';
+import OrdinalBin from './OrdinalBin';
 import Sociogram from './Sociogram';
 import Information from './Information';
 import CategoricalBin from './CategoricalBin';
@@ -22,7 +21,7 @@ import { StageType } from '../../protocol-consts';
 
 const interfaces = {
   [StageType.NameGenerator]: NameGenerator,
-  [StageType.NameGeneratorQuickAdd]: NameGeneratorQuickAdd,
+  [StageType.NameGeneratorQuickAdd]: NameGenerator,
   [StageType.NameGeneratorAutoComplete]: NameGeneratorAutoComplete,
   [StageType.NameGeneratorRoster]: NameGeneratorRoster,
   [StageType.NameGeneratorList]: NameGeneratorList,
@@ -64,7 +63,6 @@ const getInterface = (interfaceConfig) => {
 
 export {
   NameGenerator,
-  NameGeneratorQuickAdd,
   NameGeneratorAutoComplete,
   NameGeneratorList,
   NameGeneratorRoster,

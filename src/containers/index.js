@@ -7,7 +7,6 @@ export { default as NodePanels } from './NodePanels';
 export { default as Field } from './Field';
 export { default as Node } from './Node';
 export { default as NodeForm } from './NodeForm';
-export { default as QuickNodeForm } from './QuickNodeForm';
 export { default as FormWizard } from './FormWizard';
 export { default as LoadParamsRoute } from './LoadParamsRoute';
 export { default as CategoricalList } from './CategoricalList';

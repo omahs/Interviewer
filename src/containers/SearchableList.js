@@ -136,8 +136,7 @@ const SearchableList = (props) => {
   const showTooMany = mode === modes.LARGE && !hasQuery;
   const numberOfSortOptions = get(sortOptions, 'sortableProperties', []).length;
   const canSort = numberOfSortOptions > 0;
-  console.log('canSort', canSort, numberOfSortOptions);
-  const animationDuration = getCSSVariableAsNumber('--animation-duration-standard-ms') / 1000;
+  const animationDuration = useMemo(() => getCSSVariableAsNumber('--animation-duration-standard-ms') / 1000, []);
 
   const variants = {
     visible: { opacity: 1, transition: { duration: animationDuration } },

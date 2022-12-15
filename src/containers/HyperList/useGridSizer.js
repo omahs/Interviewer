@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
 
 /**
  * This is an enhancement for react-window, which allows items in a grid
@@ -51,7 +51,7 @@ const useGridSizer = (ItemComponent, items, columns, width, defaultHeight = 150)
   ), [width, adjustedColumns]);
 
   useEffect(() => {
-    if (hiddenSizingEl) { return () => {}; }
+    if (hiddenSizingEl) { return () => { }; }
 
     const newHiddenSizingEl = document.createElement('div');
 
@@ -76,7 +76,7 @@ const useGridSizer = (ItemComponent, items, columns, width, defaultHeight = 150)
     (rowIndex) => {
       if (!hiddenSizingEl) { return defaultHeight; }
 
-      hiddenSizingEl.style.width = `${columnWidth()}px` - 14; // 14 is gutter
+      hiddenSizingEl.style.width = `${columnWidth()}px`;
 
       const start = rowIndex * columns;
       const end = start + columns;
@@ -94,7 +94,7 @@ const useGridSizer = (ItemComponent, items, columns, width, defaultHeight = 150)
           0,
         );
 
-      return height > 0 ? height + 14 : defaultHeight;
+      return height > 0 ? height : defaultHeight;
     },
     [hiddenSizingEl, items, columnWidth()],
   );

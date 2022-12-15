@@ -1,5 +1,6 @@
 .hyper-list {
   display: flex;
+  flex: 1 1;
 
   &__container,
   &__sizer {
@@ -11,13 +12,6 @@
   &__grid {
     @include scrollable;
     overflow-x: hidden !important; // sass-lint:disable-line no-important
-  }
-
-  &__item {
-    .draggable {
-      height: 100%;
-      display: flex;
-    }
   }
 
   &--drag,
