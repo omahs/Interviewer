@@ -27,6 +27,8 @@ class PresetSwitcher extends PureComponent {
       presets,
       activePreset,
       highlightIndex,
+      linkIndex,
+      groupIndex,
       isFrozen,
       shouldShowResetButton,
       shouldShowFreezeButton,
@@ -37,6 +39,8 @@ class PresetSwitcher extends PureComponent {
       onToggleEdges,
       onToggleHighlighting,
       onChangeHighlightIndex,
+      onChangeLinkIndex,
+      onChangeGroupIndex,
     } = this.props;
 
     const { open } = this.state;
@@ -58,7 +62,11 @@ class PresetSwitcher extends PureComponent {
         <PresetSwitcherKey
           preset={currentActivePreset}
           highlightIndex={highlightIndex}
+          linkIndex={linkIndex}
+          groupIndex={groupIndex}
           changeHighlightIndex={onChangeHighlightIndex}
+          changeLinkIndex={onChangeLinkIndex}
+          changeGroupIndex={onChangeGroupIndex}
           toggleHighlighting={onToggleHighlighting}
           toggleEdges={onToggleEdges}
           toggleHulls={onToggleHulls}
@@ -111,6 +119,8 @@ PresetSwitcher.propTypes = {
   presets: PropTypes.array.isRequired,
   activePreset: PropTypes.number.isRequired,
   highlightIndex: PropTypes.number.isRequired,
+  linkIndex: PropTypes.number.isRequired,
+  groupIndex: PropTypes.number.isRequired,
   isFrozen: PropTypes.bool.isRequired,
   shouldShowResetButton: PropTypes.bool.isRequired,
   shouldShowFreezeButton: PropTypes.bool.isRequired,
@@ -121,6 +131,8 @@ PresetSwitcher.propTypes = {
   onToggleEdges: PropTypes.func.isRequired,
   onToggleHighlighting: PropTypes.func.isRequired,
   onChangeHighlightIndex: PropTypes.func.isRequired,
+  onChangeLinkIndex: PropTypes.func.isRequired,
+  onChangeGroupIndex: PropTypes.func.isRequired,
 };
 
 PresetSwitcher.defaultProps = {

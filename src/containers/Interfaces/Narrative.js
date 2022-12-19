@@ -28,6 +28,8 @@ class Narrative extends Component {
       showEdges: true,
       showHighlightedNodes: true,
       highlightIndex: 0,
+      linkIndex: 0,
+      groupIndex: 0,
       activeAnnotations: false,
       activeFocusNodes: false,
       isFrozen: false,
@@ -66,6 +68,18 @@ class Narrative extends Component {
     });
   }
 
+  handleChangeLinkIndex = (index) => {
+    this.setState({
+      linkIndex: index,
+    });
+  }
+
+  handleChangeGroupIndex = (index) => {
+    this.setState({
+      groupIndex: index,
+    });
+  }
+
   handleToggleFreeze = () => {
     this.setState((oldState) => ({
       isFrozen: !oldState.isFrozen,
@@ -85,6 +99,8 @@ class Narrative extends Component {
         showEdges: true,
         showHighlightedNodes: true,
         highlightIndex: 0,
+        linkIndex: 0,
+        groupIndex: 0,
         presetIndex: index,
         activeAnnotations: false,
         activeFocusNodes: false,
@@ -108,6 +124,8 @@ class Narrative extends Component {
       isFrozen,
       showHighlightedNodes,
       highlightIndex,
+      linkIndex,
+      groupIndex,
     } = this.state;
 
     const {
@@ -125,9 +143,11 @@ class Narrative extends Component {
 
     // Display Properties
     const layoutVariable = get(currentPreset, 'layoutVariable');
-    const displayEdges = showEdges ? get(currentPreset, 'edges.display', []) : [];
+    const displayEdges = showEdges ? get(currentPreset, 'edges.display', [])[linkIndex] : [];
     const highlight = get(currentPreset, 'highlight', []);
     const convexHullVariable = showConvexHulls ? get(currentPreset, 'groupVariable', '') : '';
+
+    console.log('convexhullvariable', convexHullVariable);
 
     // Background Configuration
     const backgroundImage = get(stage, 'background.image');
@@ -198,6 +218,8 @@ class Narrative extends Component {
               presets={presets}
               activePreset={presetIndex}
               highlightIndex={highlightIndex}
+              linkIndex={linkIndex}
+              groupIndex={groupIndex}
               isFrozen={isFrozen}
               shouldShowResetButton={shouldShowResetButton}
               shouldShowFreezeButton={freeDraw}
@@ -207,6 +229,8 @@ class Narrative extends Component {
               onToggleHulls={this.handleToggleHulls}
               onToggleEdges={this.handleToggleEdges}
               onChangeHighlightIndex={this.handleChangeHighlightIndex}
+              onChangeLinkIndex={this.handleChangeLinkIndex}
+              onChangeGroupIndex={this.handleChangeGroupIndex}
               onToggleHighlighting={this.handleToggleHighlighting}
             />
           </LayoutProvider>

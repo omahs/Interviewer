@@ -11,6 +11,7 @@ import {
   makeGetEdgeColor, makeGetEdgeLabel, makeGetNodeAttributeLabel, makeGetCategoricalOptions,
 } from '../../selectors/network';
 import { get } from '../../utils/lodash-replacements';
+import { convertVersion } from 'electron-winstaller';
 
 class PresetSwitcherKey extends Component {
   constructor() {
@@ -54,6 +55,66 @@ class PresetSwitcherKey extends Component {
     );
   }
 
+  renderEdge = (edge, index) => {
+    const {
+      linkIndex,
+      changeLinkIndex,
+    } = this.props;
+
+    const handleLinkClick = (event) => {
+      event.stopPropagation();
+      changeLinkIndex(index);
+    };
+    return (
+      <div>
+        <Radio
+          className="accordion-item"
+          key={index}
+          input={{
+            value: index,
+            checked: index === linkIndex,
+            onChange: (event) => handleLinkClick(event, index),
+          }}
+          label={edge.label}
+        />
+        <Icon
+          name="links"
+          color={edge.color}
+        />
+      </div>
+    );
+  }
+
+  renderGroup = (option, index) => {
+    const {
+      groupIndex,
+      changeGroupIndex,
+    } = this.props;
+
+    const handleGroupClick = (event) => {
+      event.stopPropagation();
+      changeGroupIndex(index);
+    };
+    return (
+      <div>
+        <Radio
+          className="accordion-item"
+          key={index}
+          input={{
+            value: index,
+            checked: index === groupIndex,
+            onChange: (event) => handleGroupClick(event, index),
+          }}
+          label={option.label}
+        />
+        <Icon
+          name="contexts"
+          color={`cat-color-seq-${index + 1}`}
+        />
+      </div>
+    );
+  }
+
   render() {
     const {
       toggleHighlighting,
@@ -80,28 +141,12 @@ class PresetSwitcherKey extends Component {
           )}
           {!isEmpty(edges) && (
             <Accordion label="Links" onAccordionToggle={toggleEdges}>
-              {edges.map((edge, index) => (
-                <div className="accordion-item" key={index}>
-                  <Icon
-                    name="links"
-                    color={edge.color}
-                  />
-                  {edge.label}
-                </div>
-              ))}
+              {edges.map(this.renderEdge)}
             </Accordion>
           )}
           {!isEmpty(convexOptions) && (
             <Accordion label="Groups" onAccordionToggle={toggleHulls}>
-              {convexOptions.map((option, index) => (
-                <div className="accordion-item" key={index}>
-                  <Icon
-                    name="contexts"
-                    color={`cat-color-seq-${index + 1}`}
-                  />
-                  <MarkdownLabel inline label={option.label} />
-                </div>
-              ))}
+              {convexOptions.map(this.renderGroup)}
             </Accordion>
           )}
         </div>
@@ -114,7 +159,11 @@ PresetSwitcherKey.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types
   preset: PropTypes.object.isRequired,
   highlightIndex: PropTypes.number.isRequired,
+  linkIndex: PropTypes.number.isRequired,
+  groupIndex: PropTypes.number.isRequired,
   changeHighlightIndex: PropTypes.func.isRequired,
+  changeLinkIndex: PropTypes.func.isRequired,
+  changeGroupIndex: PropTypes.func.isRequired,
   toggleHighlighting: PropTypes.func.isRequired,
   toggleEdges: PropTypes.func.isRequired,
   toggleHulls: PropTypes.func.isRequired,
