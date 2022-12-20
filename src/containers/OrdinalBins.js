@@ -9,9 +9,10 @@ import { getCSSVariableAsString } from '@codaco/ui/lib/utils/CSSVariables';
 import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
 import { makeNetworkNodesForType, makeGetVariableOptions, makeGetPromptVariable } from '../selectors/interface';
 import { actionCreators as sessionsActions } from '../ducks/modules/sessions';
-import { NodeList } from '../components';
 import { MonitorDragSource } from '../behaviours/DragAndDrop';
 import { getEntityAttributes } from '../ducks/modules/network';
+import ItemList from '../components/ItemList/ItemList';
+import Node from './Node';
 
 class OrdinalBins extends PureComponent {
   promptColor = () => {
@@ -82,16 +83,13 @@ class OrdinalBins extends PureComponent {
           </h3>
         </div>
         <div className="ordinal-bin--content" style={{ borderBottomColor: accentColor, background: panelColor }}>
-          <NodeList
-            stageId={stage.id}
-            listId={`ORDBIN_NODE_LIST_${stage.id}_${prompt.id}_${index}`}
-            id={`ORDBIN_NODE_LIST_${index}`}
+          <ItemList
+            className="ordinal-bin__list"
             items={bin.nodes}
-            itemType="NEW_NODE"
+            itemComponent={Node}
             onDrop={(item) => onDrop(item)}
             accepts={() => true}
-            hoverColor={highlightColor}
-            sortOrder={prompt.binSortOrder}
+          // sortOrder={prompt.binSortOrder}
           />
         </div>
       </div>

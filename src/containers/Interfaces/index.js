@@ -3,8 +3,6 @@ import React from 'react';
 import { has } from 'lodash';
 import { Icon } from '@codaco/ui';
 import NameGenerator from './NameGenerator/NameGenerator';
-import NameGeneratorAutoComplete from './NameGeneratorAutoComplete';
-import NameGeneratorList from './NameGeneratorList';
 import NameGeneratorRoster from './NameGeneratorRoster';
 import OrdinalBin from './OrdinalBin';
 import Sociogram from './Sociogram';
@@ -22,9 +20,7 @@ import { StageType } from '../../protocol-consts';
 const interfaces = {
   [StageType.NameGenerator]: NameGenerator,
   [StageType.NameGeneratorQuickAdd]: NameGenerator,
-  [StageType.NameGeneratorAutoComplete]: NameGeneratorAutoComplete,
   [StageType.NameGeneratorRoster]: NameGeneratorRoster,
-  [StageType.NameGeneratorList]: NameGeneratorList,
   [StageType.Sociogram]: Sociogram,
   [StageType.Information]: Information,
   [StageType.OrdinalBin]: OrdinalBin,
@@ -63,8 +59,6 @@ const getInterface = (interfaceConfig) => {
 
 export {
   NameGenerator,
-  NameGeneratorAutoComplete,
-  NameGeneratorList,
   NameGeneratorRoster,
   Sociogram,
   Information,

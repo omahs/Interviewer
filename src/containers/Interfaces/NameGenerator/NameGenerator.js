@@ -10,7 +10,12 @@ import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shar
 import Prompts from '../../../components/Prompts';
 import withPrompt from '../../../behaviours/withPrompt';
 import { actionCreators as sessionsActions } from '../../../ducks/modules/sessions';
-import { makeNetworkNodesForPrompt, makeGetAdditionalAttributes, makeGetStageNodeCount, makeNetworkNodesForOtherPrompts } from '../../../selectors/interface';
+import {
+  makeNetworkNodesForPrompt,
+  makeGetAdditionalAttributes,
+  makeGetStageNodeCount,
+  makeNetworkNodesForOtherPrompts,
+} from '../../../selectors/interface';
 import { makeGetPromptNodeModelData, makeGetNodeIconName } from '../../../selectors/name-generator';
 import NodePanels from '../../NodePanels';
 import NodeForm from '../../NodeForm';
@@ -20,21 +25,9 @@ import {
 } from './MinMaxHelpers';
 import { get } from '../../../utils/lodash-replacements';
 import QuickNodeForm from '../../../components/QuickNodeForm';
-
-// Create a context to store interface specific state
-export const InterfaceContext = React.createContext();
-
-// Create a provider to pass state to components
-const InterfaceProvider = ({
-  children,
-  ...data
-}) => {
-  return (
-    <InterfaceContext.Provider value={data}>
-      {children}
-    </InterfaceContext.Provider>
-  );
-};
+import { InterfaceProvider } from './InterfaceContext';
+import ItemList from '../../../components/ItemList/ItemList';
+import Node from '../../Node';
 
 const NameGenerator = (props) => {
   const {
@@ -67,7 +60,6 @@ const NameGenerator = (props) => {
   const [showMinWarning, setShowMinWarning] = useState(false);
 
   useEffect(() => {
-    console.log('component will receive props');
     setShowMinWarning(false);
   });
 
@@ -151,6 +143,13 @@ const NameGenerator = (props) => {
     setShowForm(false);
   };
 
+  const NodeWithClickHandler = (props) => (
+    <Node
+      {...props}
+      onClick={handleSelectNode}
+    />
+  );
+
   return (
     <InterfaceProvider
       stage={stage}
@@ -158,6 +157,7 @@ const NameGenerator = (props) => {
       nodesForPrompt={nodesForPrompt}
       nodesForOtherPrompts={nodesForOtherPrompts}
       newNodeAttributes={newNodeAttributes}
+      disableAddNew={stageNodeCount >= maxNodes}
     >
       <div className="name-generator-interface">
         <div className="name-generator-interface__prompt">
@@ -169,24 +169,17 @@ const NameGenerator = (props) => {
         <div className="name-generator-interface__main">
           {has(stage, 'panels') && (
             <div className="name-generator-interface__panels">
-              <NodePanels
-                panels={stage.panels}
-                stage={stage}
-                prompt={prompt}
-                disableAddNew={stageNodeCount >= maxNodes}
-              />
+              <NodePanels />
             </div>
           )}
           <div className="name-generator-interface__nodes">
-            <NodeList
+            <ItemList
+              className="name-generator-interface__node-list"
               items={nodesForPrompt}
-              stageId={stage.id}
-              listId={`${stage.id}_${prompt.id}_MAIN_NODE_LIST`}
-              id="MAIN_NODE_LIST"
+              itemComponent={NodeWithClickHandler}
+              useItemSizing
               accepts={({ meta }) => get(meta, 'itemType', null) === 'NEW_NODE'}
-              itemType="EXISTING_NODE"
               onDrop={handleDropNode}
-              onItemClick={handleSelectNode}
             />
           </div>
         </div>

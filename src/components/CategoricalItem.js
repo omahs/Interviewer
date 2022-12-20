@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { Flipped } from 'react-flip-toolkit';
 import { MarkdownLabel } from '@codaco/ui/lib/components/Fields';
 import { DropTarget, MonitorDropTarget } from '../behaviours/DragAndDrop';
-import NodeList from './NodeList';
+import ItemList from './ItemList/ItemList';
 
 /**
   * Renders a droppable CategoricalBin item
@@ -56,7 +56,7 @@ const CategoricalItem = ({
           {isExpanded
             && (
               <div className="categorical-item__content">
-                <NodeList
+                <ItemList
                   stageId={stage.id}
                   listId={`CATBIN_NODE_LIST_${label}`}
                   id={`CATBIN_NODE_LIST_${label}`}

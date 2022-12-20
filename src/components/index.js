@@ -3,7 +3,6 @@ export { default as CardList } from './CardList';
 export { default as FilterableListWrapper } from './FilterableListWrapper';
 export { default as NewFilterableListWrapper } from './NewFilterableListWrapper';
 export { default as Edge } from './Edge';
-export { default as NodeList } from './NodeList';
 export { default as Switch } from './Switch';
 export { default as MultiNodeBucket } from './MultiNodeBucket';
 export { default as Panels } from './Panels';

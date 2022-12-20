@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { Panels } from '../components';
 import NodePanel from './NodePanel';
-import { InterfaceContext } from './Interfaces/NameGenerator/NameGenerator';
+import { InterfaceContext } from './Interfaces/NameGenerator/InterfaceContext';
 
 const panelColors = [
   'var(--primary-color-seq-1)',
@@ -12,13 +11,11 @@ const panelColors = [
   'var(--primary-color-seq-5)',
 ];
 
-const NodePanels = (props) => {
-  const { disableAddNew } = props;
+const NodePanels = () => {
   const {
     stage: {
       panels,
     },
-    prompt,
   } = useContext(InterfaceContext);
 
   return (
@@ -27,22 +24,13 @@ const NodePanels = (props) => {
         (panel, index) => (
           <NodePanel
             key={panel.id}
-            highlight={panelColors[index % panelColors.length]}
+            accentColor={panelColors[index % panelColors.length]}
             configuration={panel}
-            disableAddNew={disableAddNew}
           />
         ),
       )}
     </Panels>
   );
-};
-
-NodePanels.propTypes = {
-  prompt: PropTypes.object,
-};
-
-NodePanels.defaultProps = {
-  prompt: { id: null },
 };
 
 export default NodePanels;
