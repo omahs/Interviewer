@@ -35,8 +35,16 @@ function makeMapStateToProps() {
       state, { variableId: props.groupVariable, ...props },
     );
 
+    const groupIndexes = props.groupIndexes;
+
+    // filter groupedList to only include groups in groupIndexes
+    const groupedList = Object.entries(nodesByGroup(props.nodes, props.groupVariable));
+    let selectedGroups = [];
+    groupedList.map((group, index) => {if (groupIndexes.includes(index)) { selectedGroups.push(group) } });
+    selectedGroups = Object.fromEntries(selectedGroups);
+
     return {
-      nodesByGroup: nodesByGroup(props.nodes, props.groupVariable),
+      nodesByGroup: selectedGroups,
       categoricalOptions,
     };
   };

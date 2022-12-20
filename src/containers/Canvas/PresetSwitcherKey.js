@@ -65,15 +65,15 @@ class PresetSwitcherKey extends Component {
       event.stopPropagation();
       // check if index is included in linkIndexes. If not, push that index. If it is, remove it.
       if (linkIndexes.includes(index)) {
-        const filteredLinkIndex = linkIndexes.filter((item) => item !== index);
-        changeLinkIndexes(filteredLinkIndex);
+        const filteredLinkIndexes = linkIndexes.filter((item) => item !== index);
+        changeLinkIndexes(filteredLinkIndexes);
       } else {
         linkIndexes.push(index);
         changeLinkIndexes(linkIndexes);
       }
     };
     return (
-      <div>
+      <div className="accordion-item">
         <Checkbox
           className="accordion-item"
           key={index}
@@ -94,22 +94,28 @@ class PresetSwitcherKey extends Component {
 
   renderGroup = (option, index) => {
     const {
-      groupIndex,
-      changeGroupIndex,
+      groupIndexes,
+      changeGroupIndexes,
     } = this.props;
 
     const handleGroupClick = (event) => {
       event.stopPropagation();
-      changeGroupIndex(index);
+      if (groupIndexes.includes(index)) {
+        const filteredGroupIndexes = groupIndexes.filter((item) => item !== index);
+        changeGroupIndexes(filteredGroupIndexes);
+      } else {
+        groupIndexes.push(index);
+        changeGroupIndexes(groupIndexes);
+      }
     };
     return (
-      <div>
-        <Radio
+      <div className="accordion-item">
+        <Checkbox
           className="accordion-item"
           key={index}
           input={{
             value: index,
-            checked: index === groupIndex,
+            checked: groupIndexes.includes(index),
             onChange: (event) => handleGroupClick(event, index),
           }}
           label={option.label}
@@ -167,10 +173,10 @@ PresetSwitcherKey.propTypes = {
   preset: PropTypes.object.isRequired,
   highlightIndex: PropTypes.number.isRequired,
   linkIndexes: PropTypes.array.isRequired,
-  groupIndex: PropTypes.number.isRequired,
+  groupIndexes: PropTypes.array.isRequired,
   changeHighlightIndex: PropTypes.func.isRequired,
   changeLinkIndexes: PropTypes.func.isRequired,
-  changeGroupIndex: PropTypes.func.isRequired,
+  changeGroupIndexes: PropTypes.func.isRequired,
   toggleHighlighting: PropTypes.func.isRequired,
   toggleEdges: PropTypes.func.isRequired,
   toggleHulls: PropTypes.func.isRequired,

@@ -29,7 +29,7 @@ class Narrative extends Component {
       showHighlightedNodes: true,
       highlightIndex: 0,
       linkIndexes: [0],
-      groupIndex: 0,
+      groupIndexes: [0],
       activeAnnotations: false,
       activeFocusNodes: false,
       isFrozen: false,
@@ -68,15 +68,15 @@ class Narrative extends Component {
     });
   }
 
-  handleChangeLinkIndexes = (index) => {
+  handleChangeLinkIndexes = (indexes) => {
     this.setState({
-      linkIndexes: index,
+      linkIndexes: indexes,
     });
   }
 
-  handleChangeGroupIndex = (index) => {
+  handleChangeGroupIndexes = (indexes) => {
     this.setState({
-      groupIndex: index,
+      groupIndexes: indexes,
     });
   }
 
@@ -100,7 +100,7 @@ class Narrative extends Component {
         showHighlightedNodes: true,
         highlightIndex: 0,
         linkIndexes: [0],
-        groupIndex: 0,
+        groupIndexes: [0],
         presetIndex: index,
         activeAnnotations: false,
         activeFocusNodes: false,
@@ -125,7 +125,7 @@ class Narrative extends Component {
       showHighlightedNodes,
       highlightIndex,
       linkIndexes,
-      groupIndex,
+      groupIndexes,
     } = this.state;
 
     const {
@@ -192,6 +192,7 @@ class Narrative extends Component {
                 nodes={nodesWithLayout}
                 groupVariable={convexHullVariable}
                 layoutVariable={layoutVariable}
+                groupIndexes={groupIndexes}
               />
               <EdgeLayout
                 edges={edgesWithCoords}
@@ -221,7 +222,7 @@ class Narrative extends Component {
               activePreset={presetIndex}
               highlightIndex={highlightIndex}
               linkIndexes={linkIndexes}
-              groupIndex={groupIndex}
+              groupIndexes={groupIndexes}
               isFrozen={isFrozen}
               shouldShowResetButton={shouldShowResetButton}
               shouldShowFreezeButton={freeDraw}
@@ -232,7 +233,7 @@ class Narrative extends Component {
               onToggleEdges={this.handleToggleEdges}
               onChangeHighlightIndex={this.handleChangeHighlightIndex}
               onChangeLinkIndexes={this.handleChangeLinkIndexes}
-              onChangeGroupIndex={this.handleChangeGroupIndex}
+              onChangeGroupIndexes={this.handleChangeGroupIndexes}
               onToggleHighlighting={this.handleToggleHighlighting}
             />
           </LayoutProvider>
