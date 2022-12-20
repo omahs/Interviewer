@@ -28,7 +28,7 @@ class Narrative extends Component {
       showEdges: true,
       showHighlightedNodes: true,
       highlightIndex: 0,
-      linkIndex: 0,
+      linkIndexes: [0],
       groupIndex: 0,
       activeAnnotations: false,
       activeFocusNodes: false,
@@ -68,9 +68,9 @@ class Narrative extends Component {
     });
   }
 
-  handleChangeLinkIndex = (index) => {
+  handleChangeLinkIndexes = (index) => {
     this.setState({
-      linkIndex: index,
+      linkIndexes: index,
     });
   }
 
@@ -99,7 +99,7 @@ class Narrative extends Component {
         showEdges: true,
         showHighlightedNodes: true,
         highlightIndex: 0,
-        linkIndex: 0,
+        linkIndexes: [0],
         groupIndex: 0,
         presetIndex: index,
         activeAnnotations: false,
@@ -124,7 +124,7 @@ class Narrative extends Component {
       isFrozen,
       showHighlightedNodes,
       highlightIndex,
-      linkIndex,
+      linkIndexes,
       groupIndex,
     } = this.state;
 
@@ -143,11 +143,13 @@ class Narrative extends Component {
 
     // Display Properties
     const layoutVariable = get(currentPreset, 'layoutVariable');
-    const displayEdges = showEdges ? get(currentPreset, 'edges.display', [])[linkIndex] : [];
+    const displayEdges = showEdges ? get(currentPreset, 'edges.display', []) : [];
     const highlight = get(currentPreset, 'highlight', []);
     const convexHullVariable = showConvexHulls ? get(currentPreset, 'groupVariable', '') : '';
 
-    console.log('convexhullvariable', convexHullVariable);
+    // Only display edges selected by user in linkIndexes
+    const selectedDisplayEdges = [];
+    displayEdges.map((edge, index) => {if (linkIndexes.includes(index)) { selectedDisplayEdges.push(edge) } });
 
     // Background Configuration
     const backgroundImage = get(stage, 'background.image');
@@ -162,7 +164,7 @@ class Narrative extends Component {
 
     // EdgeLayout should only be passed edges that are included in the presets
     // edges.display list
-    const filteredEdges = edges.filter((edge) => displayEdges.includes(edge.type));
+    const filteredEdges = edges.filter((edge) => selectedDisplayEdges.includes(edge.type));
     const edgesWithCoords = edgesToCoords(
       filteredEdges,
       { nodes: nodesWithLayout, layout: layoutVariable },
@@ -218,7 +220,7 @@ class Narrative extends Component {
               presets={presets}
               activePreset={presetIndex}
               highlightIndex={highlightIndex}
-              linkIndex={linkIndex}
+              linkIndexes={linkIndexes}
               groupIndex={groupIndex}
               isFrozen={isFrozen}
               shouldShowResetButton={shouldShowResetButton}
@@ -229,7 +231,7 @@ class Narrative extends Component {
               onToggleHulls={this.handleToggleHulls}
               onToggleEdges={this.handleToggleEdges}
               onChangeHighlightIndex={this.handleChangeHighlightIndex}
-              onChangeLinkIndex={this.handleChangeLinkIndex}
+              onChangeLinkIndexes={this.handleChangeLinkIndexes}
               onChangeGroupIndex={this.handleChangeGroupIndex}
               onToggleHighlighting={this.handleToggleHighlighting}
             />

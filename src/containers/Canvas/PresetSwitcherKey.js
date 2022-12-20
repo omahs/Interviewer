@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import { Icon, window } from '@codaco/ui';
-import { Radio, MarkdownLabel } from '@codaco/ui/lib/components/Fields';
+import { Radio, Checkbox } from '@codaco/ui/lib/components/Fields';
 import Accordion from './Accordion';
 import {
   makeGetEdgeColor, makeGetEdgeLabel, makeGetNodeAttributeLabel, makeGetCategoricalOptions,
@@ -57,22 +57,29 @@ class PresetSwitcherKey extends Component {
 
   renderEdge = (edge, index) => {
     const {
-      linkIndex,
-      changeLinkIndex,
+      linkIndexes,
+      changeLinkIndexes,
     } = this.props;
 
     const handleLinkClick = (event) => {
       event.stopPropagation();
-      changeLinkIndex(index);
+      // check if index is included in linkIndexes. If not, push that index. If it is, remove it.
+      if (linkIndexes.includes(index)) {
+        const filteredLinkIndex = linkIndexes.filter((item) => item !== index);
+        changeLinkIndexes(filteredLinkIndex);
+      } else {
+        linkIndexes.push(index);
+        changeLinkIndexes(linkIndexes);
+      }
     };
     return (
       <div>
-        <Radio
+        <Checkbox
           className="accordion-item"
           key={index}
           input={{
             value: index,
-            checked: index === linkIndex,
+            checked: linkIndexes.includes(index),
             onChange: (event) => handleLinkClick(event, index),
           }}
           label={edge.label}
@@ -159,10 +166,10 @@ PresetSwitcherKey.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types
   preset: PropTypes.object.isRequired,
   highlightIndex: PropTypes.number.isRequired,
-  linkIndex: PropTypes.number.isRequired,
+  linkIndexes: PropTypes.array.isRequired,
   groupIndex: PropTypes.number.isRequired,
   changeHighlightIndex: PropTypes.func.isRequired,
-  changeLinkIndex: PropTypes.func.isRequired,
+  changeLinkIndexes: PropTypes.func.isRequired,
   changeGroupIndex: PropTypes.func.isRequired,
   toggleHighlighting: PropTypes.func.isRequired,
   toggleEdges: PropTypes.func.isRequired,
