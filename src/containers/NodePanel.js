@@ -11,7 +11,7 @@ import { Spinner } from '@codaco/ui';
 import v4 from 'uuid/v4';
 import { DataCard } from '@codaco/ui/lib/components/Cards';
 import { getNetworkEdges, getNetworkEgo } from '../selectors/network';
-import { Panel } from '../components';
+import { NodeList, Panel } from '../components';
 import { Node } from './Node';
 import useExternalData from '../hooks/useExternalData';
 import customFilter from '../utils/networkQuery/filter';
@@ -208,7 +208,7 @@ const NodePanel = ({
       )}
       {error && (<h4>Error!</h4>)}
       {!loading && !error && (
-        <HyperList
+        <NodeList
           id={id}
           itemType="NEW_NODE" // drop type
           emptyComponent={() => (<h1>Empty panel should be hidden</h1>)}
