@@ -16,7 +16,7 @@ React Scripts
 
 This project currently requires version `14.21.3` of node, and version `8.3.2` of npm. These are the only supported versions for this project.
 
-As a convenience, the repository contains a `.node-version` file that enables convinient use of a node environment manager.
+As a convenience, the repository contains a `.node-version` file that enables convenient use of a node environment manager.
 
 ## Windows Environment
 
